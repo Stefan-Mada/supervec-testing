@@ -1,0 +1,205 @@
+Source file:
+#include <immintrin.h>
+
+__m256i function(__m256i vec1, int val, int val2){
+	int val3 = val + val2;
+	val3 *= val2;
+	__m256i valVec = _mm256_set1_epi64x(val3);
+	__m256i returnvec = _mm256_cmpgt_epi64(valVec, vec1);
+	return returnvec;
+}
+
+Compiled using:
+clang++ -I -march=native -mavx2 -O3 -Werror -S -emit-llvm function.cpp -o function.ll
+
+Called supervec using:
+$HOME/llvm/build/bin/opt -enable-new-pm=0 -load $HOME/minotaur/build/minotaur.so -so -S function.ll
+
+Sketches output:
+---------Sketches------------
+(copy reservedconst)
+(and %, %)
+(and %, %)
+(and %, reservedconst)
+(and %, %)
+(and %, reservedconst)
+(or %, %)
+(or %, %)
+(or %, reservedconst)
+(or %, %)
+(or %, reservedconst)
+(xor %, %)
+(xor %, %)
+(xor %, reservedconst)
+(xor %, %)
+(xor %, reservedconst)
+(add %, %)
+(add %, %)
+(add %, reservedconst)
+(add %, %)
+(add %, reservedconst)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub reservedconst, %)
+(sub reservedconst, %)
+(mul %, %)
+(mul %, %)
+(mul %, reservedconst)
+(mul %, %)
+(mul %, reservedconst)
+%
+%
+-----------------------------
+
+----------------------------------------
+define <4 x i64> @_Z8functionDv4_xii.236.237(<4 x i64> %0, i32 %1, i32 %2, i32 %_reservedc_0) noread nowrite nofree {
+%3:
+  %4 = add nsw i32 %2, %1
+  %5 = mul nsw i32 %4, %2
+  %6 = sext i32 %5 to i64
+  %7 = insertelement <4 x i64> undef, i64 %6, i32 0
+  %8 = shufflevector <4 x i64> %7, <4 x i64> undef, 0, 0, 0, 0
+  %9 = icmp sgt <4 x i64> %8, %0
+  %10 = sext <4 x i1> %9 to <4 x i64>
+  ret <4 x i64> %10
+}
+=>
+define <4 x i64> @_Z8functionDv4_xii.236(<4 x i64> %0, i32 %1, i32 %2, i32 %_reservedc_0) noread nowrite nofree {
+%3:
+  %4 = mul nsw i32 %_reservedc_0, %2
+  %5 = sext i32 %4 to i64
+  %6 = insertelement <4 x i64> undef, i64 %5, i32 0
+  %7 = shufflevector <4 x i64> %6, <4 x i64> undef, 0, 0, 0, 0
+  %8 = icmp sgt <4 x i64> %7, %0
+  %9 = sext <4 x i1> %8 to <4 x i64>
+  ret <4 x i64> %9
+}
+
+----------------------------------------
+define <4 x i64> @_Z8functionDv4_xii(<4 x i64> %0, i32 %1, i32 %2) noread nowrite nofree {
+%3:
+  %4 = add nsw i32 %2, %1
+  %5 = mul nsw i32 %4, %2
+  %6 = sext i32 %5 to i64
+  %7 = insertelement <4 x i64> undef, i64 %6, i32 0
+  %8 = shufflevector <4 x i64> %7, <4 x i64> undef, 0, 0, 0, 0
+  %9 = icmp sgt <4 x i64> %8, %0
+  %10 = sext <4 x i1> %9 to <4 x i64>
+  ret <4 x i64> %10
+}
+=>
+define <4 x i64> @_Z8functionDv4_xii.281(<4 x i64> %0, i32 %1, i32 %2) noread nowrite nofree {
+%3:
+  %4 = mul nsw i32 %2, %2
+  %5 = sext i32 %4 to i64
+  %6 = insertelement <4 x i64> undef, i64 %5, i32 0
+  %7 = shufflevector <4 x i64> %6, <4 x i64> undef, 0, 0, 0, 0
+  %8 = icmp sgt <4 x i64> %7, %0
+  %9 = sext <4 x i1> %8 to <4 x i64>
+  ret <4 x i64> %9
+}
+Transformation doesn't verify!
+ERROR: Target is more poisonous than source
+
+Example:
+<4 x i64> %0 = < any, any, any, any >
+i32 %1 = #xe0000000 (3758096384, -536870912)
+i32 %2 = #x20000000 (536870912)
+
+Source:
+i32 %4 = #x00000000 (0)
+i32 %5 = #x00000000 (0)
+i64 %6 = #x0000000000000000 (0)
+<4 x i64> %7 = < #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0) >
+<4 x i64> %8 = < #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0) >
+<4 x i1> %9 = < any, any, any, any >
+<4 x i64> %10 = < #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0) >
+
+Target:
+i32 %4 = poison
+i64 %5 = poison
+<4 x i64> %6 = < poison, any, any, any >
+<4 x i64> %7 = < poison, poison, poison, poison >
+<4 x i1> %8 = < poison, poison, poison, poison >
+<4 x i64> %9 = < poison, poison, poison, poison >
+Source value: < #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0) >
+Target value: < poison, poison, poison, poison >
+
+
+----------------------------------------
+define <4 x i64> @_Z8functionDv4_xii(<4 x i64> %0, i32 %1, i32 %2) noread nowrite nofree {
+%3:
+  %4 = add nsw i32 %2, %1
+  %5 = mul nsw i32 %4, %2
+  %6 = sext i32 %5 to i64
+  %7 = insertelement <4 x i64> undef, i64 %6, i32 0
+  %8 = shufflevector <4 x i64> %7, <4 x i64> undef, 0, 0, 0, 0
+  %9 = icmp sgt <4 x i64> %8, %0
+  %10 = sext <4 x i1> %9 to <4 x i64>
+  ret <4 x i64> %10
+}
+=>
+define <4 x i64> @_Z8functionDv4_xii.282(<4 x i64> %0, i32 %1, i32 %2) noread nowrite nofree {
+%3:
+  %4 = mul nsw i32 %1, %2
+  %5 = sext i32 %4 to i64
+  %6 = insertelement <4 x i64> undef, i64 %5, i32 0
+  %7 = shufflevector <4 x i64> %6, <4 x i64> undef, 0, 0, 0, 0
+  %8 = icmp sgt <4 x i64> %7, %0
+  %9 = sext <4 x i1> %8 to <4 x i64>
+  ret <4 x i64> %9
+}
+Transformation doesn't verify!
+ERROR: Target is more poisonous than source
+
+Example:
+<4 x i64> %0 = < any, any, any, any >
+i32 %1 = #xe0000000 (3758096384, -536870912)
+i32 %2 = #x20000000 (536870912)
+
+Source:
+i32 %4 = #x00000000 (0)
+i32 %5 = #x00000000 (0)
+i64 %6 = #x0000000000000000 (0)
+<4 x i64> %7 = < #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0) >
+<4 x i64> %8 = < #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0) >
+<4 x i1> %9 = < any, any, any, any >
+<4 x i64> %10 = < #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0) >
+
+Target:
+i32 %4 = poison
+i64 %5 = poison
+<4 x i64> %6 = < poison, any, any, any >
+<4 x i64> %7 = < poison, poison, poison, poison >
+<4 x i1> %8 = < poison, poison, poison, poison >
+<4 x i64> %9 = < poison, poison, poison, poison >
+Source value: < #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0) >
+Target value: < poison, poison, poison, poison >
+
+; ModuleID = 'function.ll'
+source_filename = "function.cpp"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-pc-linux-gnu"
+
+; Function Attrs: norecurse nounwind readnone uwtable
+define dso_local <4 x i64> @_Z8functionDv4_xii(<4 x i64> %0, i32 %1, i32 %2) local_unnamed_addr #0 {
+  %4 = add nsw i32 %2, %1
+  %5 = mul nsw i32 %4, %2
+  %6 = sext i32 %5 to i64
+  %7 = insertelement <4 x i64> undef, i64 %6, i32 0
+  %8 = shufflevector <4 x i64> %7, <4 x i64> undef, <4 x i32> zeroinitializer
+  %9 = icmp sgt <4 x i64> %8, %0
+  %10 = sext <4 x i1> %9 to <4 x i64>
+  ret <4 x i64> %10
+}
+
+attributes #0 = { norecurse nounwind readnone uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "frame-pointer"="none" "less-precise-fpmad"="false" "min-legal-vector-width"="256" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+avx,+avx2,+cx8,+fxsr,+mmx,+popcnt,+sse,+sse2,+sse3,+sse4.1,+sse4.2,+ssse3,+x87,+xsave" "unsafe-fp-math"="false" "use-soft-float"="false" }
+
+!llvm.module.flags = !{!0}
+!llvm.ident = !{!1}
+
+!0 = !{i32 1, !"wchar_size", i32 4}
+!1 = !{!"clang version 10.0.0-4ubuntu1 "}
+
