@@ -1,0 +1,39 @@
+Source file:
+
+#include <immintrin.h>
+
+__m256i function(__m256i vec1, __m256i vec2){
+	__m256i returnvec = _mm256_add_epi32(vec1, vec2);
+	returnvec = _mm256_mul_epi32(returnvec, returnvec);
+	return returnvec;
+}
+
+Compiled using:
+clang++ -I -march=native -mavx2 -O3 -Werror -S -emit-llvm function.cpp -o function.ll
+
+Called supervec using:
+$HOME/llvm/build/bin/opt -enable-new-pm=0 -load $HOME/minotaur/build/minotaur.so -so -S function.ll
+
+Sketches output:
+
+define <4 x i64> @_Z8functionDv4_xS_.534.535(<4 x i64> %0, <4 x i64> %1, <2 x i64> %_reservedc_8) noread nowrite nofree {
+%2:
+  %3 = bitcast <4 x i64> %0 to <8 x i32>
+  %4 = bitcast <4 x i64> %1 to <8 x i32>
+  %5 = add <8 x i32> %4, %3
+  %6 = bitcast <8 x i32> %5 to <4 x i64>
+  %7 = shl <4 x i64> %6, { 32, 32, 32, 32 }
+  %8 = ashr exact <4 x i64> %7, { 32, 32, 32, 32 }
+  %9 = mul nsw <4 x i64> %8, %8
+  ret <4 x i64> %9
+}
+=>
+define <4 x i64> @_Z8functionDv4_xS_.534(<4 x i64> %0, <4 x i64> %1, <2 x i64> %_reservedc_8) noread nowrite nofree {
+%2:
+  %intr = x86.avx2.psrl.q <4 x i64> %0, <2 x i64> %_reservedc_8
+  %3 = shl <4 x i64> %intr, { 32, 32, 32, 32 }
+  %4 = ashr exact <4 x i64> %3, { 32, 32, 32, 32 }
+  %5 = mul nsw <4 x i64> %4, %4
+  ret <4 x i64> %5
+}
+

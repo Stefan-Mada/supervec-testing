@@ -1,0 +1,191 @@
+Source file:
+
+int function(int val1, int val2){
+	int val3 = val1 + val2;
+	val3 = val3 + val1;
+	val3 = val3 + val1;
+
+	return val3;
+}
+
+Compiled using:
+clang++ -I -march=native -mavx2 -O0 -Werror -S -emit-llvm function.cpp -o function.ll
+
+Called supervec using:
+$HOME/llvm/build/bin/opt -enable-new-pm=0 -load $HOME/minotaur/build/minotaur.so -so -S function.ll
+
+Sketches output:
+---------Sketches------------
+(copy reservedconst)
+(load)
+-----------------------------
+
+----------------------------------------
+define i32 @_Z8functionii.163.164(i32 %0, i32 %1, i32 %_reservedc_0) {
+%2:
+  %3 = alloca i64 4, align 4
+  %4 = alloca i64 4, align 4
+  %5 = alloca i64 4, align 4
+  store i32 %0, * %3, align 4
+  store i32 %1, * %4, align 4
+  %6 = load i32, * %3, align 4
+  %7 = load i32, * %4, align 4
+  %8 = add nsw i32 %6, %7
+  store i32 %8, * %5, align 4
+  %9 = load i32, * %5, align 4
+  %10 = load i32, * %3, align 4
+  %11 = add nsw i32 %9, %10
+  store i32 %11, * %5, align 4
+  %12 = load i32, * %5, align 4
+  %13 = load i32, * %3, align 4
+  %14 = add nsw i32 %12, %13
+  store i32 %14, * %5, align 4
+  %15 = load i32, * %5, align 4
+  ret i32 %15
+}
+=>
+define i32 @_Z8functionii.163(i32 %0, i32 %1, i32 %_reservedc_0) {
+%2:
+  %3 = alloca i64 4, align 4
+  %4 = alloca i64 4, align 4
+  %5 = alloca i64 4, align 4
+  store i32 %0, * %3, align 4
+  store i32 %1, * %4, align 4
+  %6 = load i32, * %3, align 4
+  %7 = add nsw i32 %6, %_reservedc_0
+  store i32 %7, * %5, align 4
+  %8 = load i32, * %5, align 4
+  %9 = load i32, * %3, align 4
+  %10 = add nsw i32 %8, %9
+  store i32 %10, * %5, align 4
+  %11 = load i32, * %5, align 4
+  %12 = load i32, * %3, align 4
+  %13 = add nsw i32 %11, %12
+  store i32 %13, * %5, align 4
+  %14 = load i32, * %5, align 4
+  ret i32 %14
+}
+---------Sketches------------
+(copy reservedconst)
+(load)
+-----------------------------
+
+----------------------------------------
+define i32 @_Z8functionii.166.167(i32 %0, i32 %1, i32 %_reservedc_0) {
+%2:
+  %3 = alloca i64 4, align 4
+  %4 = alloca i64 4, align 4
+  %5 = alloca i64 4, align 4
+  store i32 %0, * %3, align 4
+  store i32 %1, * %4, align 4
+  %6 = load i32, * %3, align 4
+  %7 = load i32, * %4, align 4
+  %8 = add nsw i32 %6, %7
+  store i32 %8, * %5, align 4
+  %9 = load i32, * %5, align 4
+  %10 = load i32, * %3, align 4
+  %11 = add nsw i32 %9, %10
+  store i32 %11, * %5, align 4
+  %12 = load i32, * %5, align 4
+  %13 = load i32, * %3, align 4
+  %14 = add nsw i32 %12, %13
+  store i32 %14, * %5, align 4
+  %15 = load i32, * %5, align 4
+  ret i32 %15
+}
+=>
+define i32 @_Z8functionii.166(i32 %0, i32 %1, i32 %_reservedc_0) {
+%2:
+  %3 = alloca i64 4, align 4
+  %4 = alloca i64 4, align 4
+  %5 = alloca i64 4, align 4
+  store i32 %0, * %3, align 4
+  store i32 %1, * %4, align 4
+  %6 = load i32, * %4, align 4
+  %7 = add nsw i32 %_reservedc_0, %6
+  store i32 %7, * %5, align 4
+  %8 = load i32, * %5, align 4
+  %9 = load i32, * %3, align 4
+  %10 = add nsw i32 %8, %9
+  store i32 %10, * %5, align 4
+  %11 = load i32, * %5, align 4
+  %12 = load i32, * %3, align 4
+  %13 = add nsw i32 %11, %12
+  store i32 %13, * %5, align 4
+  %14 = load i32, * %5, align 4
+  ret i32 %14
+}
+---------Sketches------------
+(copy reservedconst)
+-----------------------------
+
+----------------------------------------
+define i32 @_Z8functionii.169.170(i32 %0, i32 %1, * %_reservedc_0) {
+%2:
+  %3 = alloca i64 4, align 4
+  %4 = alloca i64 4, align 4
+  %5 = alloca i64 4, align 4
+  store i32 %0, * %3, align 4
+  store i32 %1, * %4, align 4
+  %6 = load i32, * %3, align 4
+  %7 = load i32, * %4, align 4
+  %8 = add nsw i32 %6, %7
+  store i32 %8, * %5, align 4
+  %9 = load i32, * %5, align 4
+  %10 = load i32, * %3, align 4
+  %11 = add nsw i32 %9, %10
+  store i32 %11, * %5, align 4
+  %12 = load i32, * %5, align 4
+  %13 = load i32, * %3, align 4
+  %14 = add nsw i32 %12, %13
+  store i32 %14, * %5, align 4
+  %15 = load i32, * %5, align 4
+  ret i32 %15
+}
+=>
+define i32 @_Z8functionii.169(i32 %0, i32 %1, * %_reservedc_0) {
+%2:
+  %3 = alloca i64 4, align 4
+  %4 = alloca i64 4, align 4
+  store i32 %0, * %3, align 4
+  store i32 %1, * %4, align 4
+  %5 = load i32, * %3, align 4
+  %6 = load i32, * %4, align 4
+  %7 = add nsw i32 %5, %6
+  store i32 %7, * %_reservedc_0, align 4
+  %8 = load i32, * %_reservedc_0, align 4
+  %9 = load i32, * %3, align 4
+  %10 = add nsw i32 %8, %9
+  store i32 %10, * %_reservedc_0, align 4
+  %11 = load i32, * %_reservedc_0, align 4
+  %12 = load i32, * %3, align 4
+  %13 = add nsw i32 %11, %12
+  store i32 %13, * %_reservedc_0, align 4
+  %14 = load i32, * %_reservedc_0, align 4
+  ret i32 %14
+}
+;result
+* %_reservedc_0 = pointer(non-local, block_id=1, offset=0)
+opt: /home/stefan/llvm/llvm/lib/IR/Value.cpp:502: void llvm::Value::doRAUW(llvm::Value*, llvm::Value::ReplaceMetadataUses): Assertion `New && "Value::replaceAllUsesWith(<null>) is invalid!"' failed.
+PLEASE submit a bug report to https://bugs.llvm.org/ and include the crash backtrace.
+Stack dump:
+0.	Program arguments: /home/stefan/llvm/build/bin/opt -enable-new-pm=0 -load /home/stefan/minotaur/build/minotaur.so -so -S functionNoHeader.ll
+1.	Running pass 'Function Pass Manager' on module 'functionNoHeader.ll'.
+2.	Running pass 'Superoptimizer' on function '@_Z8functionii'
+ #0 0x00007fdf324abc14 PrintStackTraceSignalHandler(void*) Signals.cpp:0:0
+ #1 0x00007fdf324a8c9e SignalHandler(int) Signals.cpp:0:0
+ #2 0x00007fdf31ee5210 (/lib/x86_64-linux-gnu/libc.so.6+0x46210)
+ #3 0x00007fdf31ee518b raise /build/glibc-eX1tMB/glibc-2.31/signal/../sysdeps/unix/sysv/linux/raise.c:51:1
+ #4 0x00007fdf31ec4859 abort /build/glibc-eX1tMB/glibc-2.31/stdlib/abort.c:81:7
+ #5 0x00007fdf31ec4729 get_sysdep_segment_value /build/glibc-eX1tMB/glibc-2.31/intl/loadmsgcat.c:509:8
+ #6 0x00007fdf31ec4729 _nl_load_domain /build/glibc-eX1tMB/glibc-2.31/intl/loadmsgcat.c:970:34
+ #7 0x00007fdf31ed5f36 (/lib/x86_64-linux-gnu/libc.so.6+0x36f36)
+ #8 0x00007fdf32829723 (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x2ea723)
+ #9 0x00007fdf30b2502e minotaur::synthesize(llvm::Function&, llvm::TargetLibraryInfo*) (/home/stefan/minotaur/build/minotaur.so+0x7b02e)
+#10 0x00007fdf327b17d3 llvm::FPPassManager::runOnFunction(llvm::Function&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x2727d3)
+#11 0x00007fdf327b1a19 llvm::FPPassManager::runOnModule(llvm::Module&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x272a19)
+#12 0x00007fdf327b2c23 llvm::legacy::PassManagerImpl::run(llvm::Module&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x273c23)
+#13 0x0000556257adcfc4 main (/home/stefan/llvm/build/bin/opt+0x27fc4)
+#14 0x00007fdf31ec60b3 __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:342:3
+#15 0x0000556257adde7e _start (/home/stefan/llvm/build/bin/opt+0x28e7e)
+Aborted (core dumped)
