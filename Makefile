@@ -17,7 +17,7 @@ main: main.o function.o
 %.out: %.cpp
 	$(CC) $(CLAFGS) $(WARN) $< -o $@
 
-.PHONY: IR %.ll BC %.bc
+.PHONY: IR %.ll BC %.bc supervec
 
 %.ll: %.ispc
 	ispc $(ISPCFLAGS) --emit-llvm-text $< -o $@
@@ -26,3 +26,6 @@ main: main.o function.o
 	$(CC) $(CFLAGS) $(WARN) -S -emit-llvm $< -o $@
 
 IR: function.ll
+
+supervec: function.ll
+	$$HOME/llvm/build/bin/opt  -enable-new-pm=0 -load $$HOME/minotaur/build/minotaur.so -so -S function.ll
