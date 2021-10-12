@@ -1,0 +1,120 @@
+Source file:
+
+int function(int val)
+{
+	if(val < 2)
+		return 1;
+	return function(val - 1) + function(val - 2);
+}
+
+Compiled using:
+clang++ -I -march=native -mavx2 -O3 -Werror -S -emit-llvm function.cpp -o function.ll
+
+Called supervec using:
+$HOME/llvm/build/bin/opt -enable-new-pm=0 -load $HOME/minotaur/build/minotaur.so -so -S function.ll
+
+
+Sketches output:
+----------------------------------------
+define i32 @_Z8functioni(i32 %0) noread nowrite nofree {
+%1:
+  %4 = icmp slt i32 %0, 2
+  br i1 %4, label %3, label %2
+
+%2:
+  %5 = phi i32 [ %0, %2 ], [ %0, %1 ]
+  %6 = phi i32 [ 1, %1 ], [ %9, %2 ]
+  %7 = add nsw i32 %5, 4294967295
+  %8 = call i32 @_Z8functioni(i32 %7) noread nowrite nofree
+  %9 = add nsw i32 %8, %6
+  %10 = icmp slt i32 %5, 4
+  br i1 %10, label %3, label %2#2
+
+%2#2:
+  %5#2 = phi i32 [ %0, %2 ]
+  %6#2 = phi i32 [ %9, %2 ]
+  %7#2 = add nsw i32 %5#2, 4294967295
+  %8#2 = call i32 @_Z8functioni(i32 %7#2) noread nowrite nofree
+  %9#2 = add nsw i32 %8#2, %6#2
+  %10#2 = icmp slt i32 %5#2, 4
+  br i1 %10#2, label %3, label #sink
+
+%3:
+  %11 = phi i32 [ 1, %1 ], [ %9, %2 ], [ %9#2, %2#2 ]
+  ret i32 %11
+}
+=>
+define i32 @_Z8functioni.490(i32 %0) noread nowrite nofree {
+%1:
+  %4 = icmp slt i32 %0, 2
+  br i1 %4, label %3, label %2
+
+%2:
+  %5 = phi i32 [ %0, %2 ], [ %0, %1 ]
+  %6 = phi i32 [ 1, %1 ], [ %9, %2 ]
+  %7 = add nsw i32 %5, 4294967295
+  %8 = call i32 @_Z8functioni(i32 %7) noread nowrite nofree
+  %9 = add nsw i32 %8, %6
+  %10 = icmp slt i32 %5, 4
+  br i1 %10, label %3, label %2#2
+
+%2#2:
+  %5#2 = phi i32 [ %0, %2 ]
+  %6#2 = phi i32 [ %9, %2 ]
+  %7#2 = add nsw i32 %5#2, 4294967295
+  %8#2 = call i32 @_Z8functioni(i32 %7#2) noread nowrite nofree
+  %9#2 = add nsw i32 %8#2, %6#2
+  %10#2 = icmp slt i32 %5#2, 4
+  br i1 %10#2, label %3, label #sink
+
+%3:
+  %5#phi#0 = phi i32 [ %5, %2 ], [ %5#2, %2#2 ]
+  ret i32 %5#phi#0
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000000 (0)
+
+Source:
+i1 %4 = #x1 (1)
+  >> Jump to %3
+i32 %11 = #x00000001 (1)
+
+SOURCE MEMORY STATE
+===================
+NON-LOCAL BLOCKS:
+Block 0 >	size: 0	align: 1	alloc type: 0
+Block 1 >	size: 0	align: 1
+
+Target:
+i1 %4 = #x1 (1)
+  >> Jump to %3
+i32 %5#phi#0 = #x00000000 (0)
+Source value: #x00000001 (1)
+Target value: #x00000000 (0)
+
+opt: /home/stefan/llvm/llvm/lib/IR/Value.cpp:502: void llvm::Value::doRAUW(llvm::Value*, llvm::Value::ReplaceMetadataUses): Assertion `New && "Value::replaceAllUsesWith(<null>) is invalid!"' failed.
+PLEASE submit a bug report to https://bugs.llvm.org/ and include the crash backtrace.
+Stack dump:
+0.	Program arguments: /home/stefan/llvm/build/bin/opt -enable-new-pm=0 -load /home/stefan/minotaur/build/minotaur.so -so -S function2.ll
+1.	Running pass 'Function Pass Manager' on module 'function2.ll'.
+2.	Running pass 'Superoptimizer' on function '@_Z8functioni'
+ #0 0x00007f19c67b9c14 PrintStackTraceSignalHandler(void*) Signals.cpp:0:0
+ #1 0x00007f19c67b6c9e SignalHandler(int) Signals.cpp:0:0
+ #2 0x00007f19c61f3210 (/lib/x86_64-linux-gnu/libc.so.6+0x46210)
+ #3 0x00007f19c61f318b raise /build/glibc-eX1tMB/glibc-2.31/signal/../sysdeps/unix/sysv/linux/raise.c:51:1
+ #4 0x00007f19c61d2859 abort /build/glibc-eX1tMB/glibc-2.31/stdlib/abort.c:81:7
+ #5 0x00007f19c61d2729 get_sysdep_segment_value /build/glibc-eX1tMB/glibc-2.31/intl/loadmsgcat.c:509:8
+ #6 0x00007f19c61d2729 _nl_load_domain /build/glibc-eX1tMB/glibc-2.31/intl/loadmsgcat.c:970:34
+ #7 0x00007f19c61e3f36 (/lib/x86_64-linux-gnu/libc.so.6+0x36f36)
+ #8 0x00007f19c6b37723 (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x2ea723)
+ #9 0x00007f19c4e3302e minotaur::synthesize(llvm::Function&, llvm::TargetLibraryInfo*) (/home/stefan/minotaur/build/minotaur.so+0x7b02e)
+#10 0x00007f19c6abf7d3 llvm::FPPassManager::runOnFunction(llvm::Function&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x2727d3)
+#11 0x00007f19c6abfa19 llvm::FPPassManager::runOnModule(llvm::Module&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x272a19)
+#12 0x00007f19c6ac0c23 llvm::legacy::PassManagerImpl::run(llvm::Module&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x273c23)
+#13 0x000055ba25b0cfc4 main (/home/stefan/llvm/build/bin/opt+0x27fc4)
+#14 0x00007f19c61d40b3 __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:342:3
+#15 0x000055ba25b0de7e _start (/home/stefan/llvm/build/bin/opt+0x28e7e)
+Aborted (core dumped)
