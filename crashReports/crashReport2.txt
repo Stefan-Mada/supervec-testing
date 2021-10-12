@@ -1,0 +1,388 @@
+Source file:
+
+int function(int val1, int val2){
+	if(val2 == 1)
+		return val1;
+
+	return val1 * function(val1, val2 - 1);
+}
+
+
+Compiled using:
+clang++ -I -march=native -mavx2 -O3 -Werror -S -emit-llvm function.cpp -o function.ll
+
+Called supervec using:
+$HOME/llvm/build/bin/opt -enable-new-pm=0 -load $HOME/minotaur/build/minotaur.so -so -S function.ll
+
+Sketches output:
+$HOME/llvm/build/bin/opt  -enable-new-pm=0 -load $HOME/minotaur/build/minotaur.so -so -S function.ll
+---------Sketches------------
+(copy reservedconst)
+-----------------------------
+
+----------------------------------------
+define i32 @_Z8functionii.1.2(i32 %0, i32 %1, i1 %_reservedc_0) noread nowrite nofree {
+%2:
+  %13 = icmp eq i32 %1, 1
+  br i1 %13, label %12, label %3
+
+%3:
+  %14 = add i32 %1, 4294967295
+  %15 = icmp ult i32 %14, 32
+  br i1 %15, label %10, label %4
+
+%4:
+  %16 = and i32 %14, 4294967264
+  %17 = sub i32 %1, %16
+  %18 = insertelement <8 x i32> undef, i32 %0, i32 0
+  %19 = shufflevector <8 x i32> %18, <8 x i32> undef, 0, 0, 0, 0, 0, 0, 0, 0
+  %20 = insertelement <8 x i32> undef, i32 %0, i32 0
+  %21 = shufflevector <8 x i32> %20, <8 x i32> undef, 0, 0, 0, 0, 0, 0, 0, 0
+  %22 = insertelement <8 x i32> undef, i32 %0, i32 0
+  %23 = shufflevector <8 x i32> %22, <8 x i32> undef, 0, 0, 0, 0, 0, 0, 0, 0
+  %24 = insertelement <8 x i32> undef, i32 %0, i32 0
+  %25 = shufflevector <8 x i32> %24, <8 x i32> undef, 0, 0, 0, 0, 0, 0, 0, 0
+  %26 = insertelement <8 x i32> { undef, 1, 1, 1, 1, 1, 1, 1 }, i32 %0, i32 0
+  %27 = add i32 %16, 4294967264
+  %28 = lshr exact i32 %27, 5
+  %29 = add nsw nuw i32 %28, 1
+  %30 = and i32 %29, 3
+  %31 = icmp ult i32 %27, 96
+  br i1 %31, label %7, label %5
+
+%5:
+  %32 = sub nsw i32 %29, %30
+  br label %6
+
+%6:
+  %33 = phi <8 x i32> [ %26, %5 ], [ %50, %6 ]
+  %34 = phi <8 x i32> [ { 1, 1, 1, 1, 1, 1, 1, 1 }, %5 ], [ %51, %6 ]
+  %35 = phi <8 x i32> [ { 1, 1, 1, 1, 1, 1, 1, 1 }, %5 ], [ %52, %6 ]
+  %36 = phi <8 x i32> [ { 1, 1, 1, 1, 1, 1, 1, 1 }, %5 ], [ %53, %6 ]
+  %37 = phi i32 [ %32, %5 ], [ %54, %6 ]
+  %38 = mul <8 x i32> %33, %19
+  %39 = mul <8 x i32> %34, %21
+  %40 = mul <8 x i32> %35, %23
+  %41 = mul <8 x i32> %36, %25
+  %42 = mul <8 x i32> %38, %19
+  %43 = mul <8 x i32> %39, %21
+  %44 = mul <8 x i32> %40, %23
+  %45 = mul <8 x i32> %41, %25
+  %46 = mul <8 x i32> %42, %19
+  %47 = mul <8 x i32> %43, %21
+  %48 = mul <8 x i32> %44, %23
+  %49 = mul <8 x i32> %45, %25
+  %50 = mul <8 x i32> %46, %19
+  %51 = mul <8 x i32> %47, %21
+  %52 = mul <8 x i32> %48, %23
+  %53 = mul <8 x i32> %49, %25
+  %54 = add i32 %37, 4294967292
+  %55 = icmp eq i32 %54, 0
+  br i1 %55, label %7, label %6#2
+
+%6#2:
+  %33#2 = phi <8 x i32> [ %50, %6 ]
+  %34#2 = phi <8 x i32> [ %51, %6 ]
+  %35#2 = phi <8 x i32> [ %52, %6 ]
+  %36#2 = phi <8 x i32> [ %53, %6 ]
+  %37#2 = phi i32 [ %54, %6 ]
+  %38#2 = mul <8 x i32> %33#2, %19
+  %39#2 = mul <8 x i32> %34#2, %21
+  %40#2 = mul <8 x i32> %35#2, %23
+  %41#2 = mul <8 x i32> %36#2, %25
+  %42#2 = mul <8 x i32> %38#2, %19
+  %43#2 = mul <8 x i32> %39#2, %21
+  %44#2 = mul <8 x i32> %40#2, %23
+  %45#2 = mul <8 x i32> %41#2, %25
+  %46#2 = mul <8 x i32> %42#2, %19
+  %47#2 = mul <8 x i32> %43#2, %21
+  %48#2 = mul <8 x i32> %44#2, %23
+  %49#2 = mul <8 x i32> %45#2, %25
+  %50#2 = mul <8 x i32> %46#2, %19
+  %51#2 = mul <8 x i32> %47#2, %21
+  %52#2 = mul <8 x i32> %48#2, %23
+  %53#2 = mul <8 x i32> %49#2, %25
+  %54#2 = add i32 %37#2, 4294967292
+  %55#2 = icmp eq i32 %54#2, 0
+  br i1 %55#2, label %7, label #sink
+
+%7:
+  %56 = phi <8 x i32> [ undef, %4 ], [ %50, %6 ], [ %50#2, %6#2 ]
+  %57 = phi <8 x i32> [ undef, %4 ], [ %51, %6 ], [ %51#2, %6#2 ]
+  %58 = phi <8 x i32> [ undef, %4 ], [ %52, %6 ], [ %52#2, %6#2 ]
+  %59 = phi <8 x i32> [ undef, %4 ], [ %53, %6 ], [ %53#2, %6#2 ]
+  %60 = phi <8 x i32> [ %26, %4 ], [ %50, %6 ], [ %50#2, %6#2 ]
+  %61 = phi <8 x i32> [ { 1, 1, 1, 1, 1, 1, 1, 1 }, %4 ], [ %51, %6 ], [ %51#2, %6#2 ]
+  %62 = phi <8 x i32> [ { 1, 1, 1, 1, 1, 1, 1, 1 }, %4 ], [ %52, %6 ], [ %52#2, %6#2 ]
+  %63 = phi <8 x i32> [ { 1, 1, 1, 1, 1, 1, 1, 1 }, %4 ], [ %53, %6 ], [ %53#2, %6#2 ]
+  %64 = icmp eq i32 %30, 0
+  br i1 %64, label %9, label %8
+
+%8:
+  %65 = phi <8 x i32> [ %60, %7 ], [ %70, %8 ]
+  %66 = phi <8 x i32> [ %61, %7 ], [ %71, %8 ]
+  %67 = phi <8 x i32> [ %62, %7 ], [ %72, %8 ]
+  %68 = phi <8 x i32> [ %63, %7 ], [ %73, %8 ]
+  %69 = phi i32 [ %30, %7 ], [ %74, %8 ]
+  %70 = mul <8 x i32> %65, %19
+  %71 = mul <8 x i32> %66, %21
+  %72 = mul <8 x i32> %67, %23
+  %73 = mul <8 x i32> %68, %25
+  %74 = add i32 %69, 4294967295
+  %75 = icmp eq i32 %74, 0
+  br i1 %75, label %9, label %8#2
+
+%8#2:
+  %65#2 = phi <8 x i32> [ %70, %8 ]
+  %66#2 = phi <8 x i32> [ %71, %8 ]
+  %67#2 = phi <8 x i32> [ %72, %8 ]
+  %68#2 = phi <8 x i32> [ %73, %8 ]
+  %69#2 = phi i32 [ %74, %8 ]
+  %70#2 = mul <8 x i32> %65#2, %19
+  %71#2 = mul <8 x i32> %66#2, %21
+  %72#2 = mul <8 x i32> %67#2, %23
+  %73#2 = mul <8 x i32> %68#2, %25
+  %74#2 = add i32 %69#2, 4294967295
+  %75#2 = icmp eq i32 %74#2, 0
+  br i1 %75#2, label %9, label #sink
+
+%9:
+  %76 = phi <8 x i32> [ %56, %7 ], [ %70, %8 ], [ %70#2, %8#2 ]
+  %77 = phi <8 x i32> [ %57, %7 ], [ %71, %8 ], [ %71#2, %8#2 ]
+  %78 = phi <8 x i32> [ %58, %7 ], [ %72, %8 ], [ %72#2, %8#2 ]
+  %79 = phi <8 x i32> [ %59, %7 ], [ %73, %8 ], [ %73#2, %8#2 ]
+  %80 = mul <8 x i32> %77, %76
+  %81 = mul <8 x i32> %78, %80
+  %82 = mul <8 x i32> %79, %81
+  %83 = shufflevector <8 x i32> %82, <8 x i32> undef, 4, 5, 6, 7, 4294967295, 4294967295, 4294967295, 4294967295
+  %84 = mul <8 x i32> %82, %83
+  %85 = shufflevector <8 x i32> %84, <8 x i32> undef, 2, 3, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295
+  %86 = mul <8 x i32> %84, %85
+  %87 = shufflevector <8 x i32> %86, <8 x i32> undef, 1, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295
+  %88 = mul <8 x i32> %86, %87
+  %89 = extractelement <8 x i32> %88, i32 0
+  %90 = icmp eq i32 %14, %16
+  br i1 %90, label %12, label %10
+
+%10:
+  %91 = phi i32 [ %1, %3 ], [ %17, %9 ]
+  %92 = phi i32 [ %0, %3 ], [ %89, %9 ]
+  br label %11
+
+%11:
+  %93 = phi i32 [ %91, %10 ], [ %95, %11 ]
+  %94 = phi i32 [ %92, %10 ], [ %96, %11 ]
+  %95 = add nsw i32 %93, 4294967295
+  %96 = mul nsw i32 %94, %0
+  %97 = icmp eq i32 %95, 1
+  br i1 %97, label %12, label %11#2
+
+%11#2:
+  %93#2 = phi i32 [ %95, %11 ]
+  %94#2 = phi i32 [ %96, %11 ]
+  %95#2 = add nsw i32 %93#2, 4294967295
+  %96#2 = mul nsw i32 %94#2, %0
+  %97#2 = icmp eq i32 %95#2, 1
+  br i1 %97#2, label %12, label #sink
+
+%12:
+  %98 = phi i32 [ %0, %2 ], [ %89, %9 ], [ %96, %11 ], [ %96#2, %11#2 ]
+  ret i32 %98
+}
+=>
+define i32 @_Z8functionii.1(i32 %0, i32 %1, i1 %_reservedc_0) noread nowrite nofree {
+%2:
+  br i1 %_reservedc_0, label %12, label %3
+
+%3:
+  %13 = add i32 %1, 4294967295
+  %14 = icmp ult i32 %13, 32
+  br i1 %14, label %10, label %4
+
+%4:
+  %15 = and i32 %13, 4294967264
+  %16 = sub i32 %1, %15
+  %17 = insertelement <8 x i32> undef, i32 %0, i32 0
+  %18 = shufflevector <8 x i32> %17, <8 x i32> undef, 0, 0, 0, 0, 0, 0, 0, 0
+  %19 = insertelement <8 x i32> undef, i32 %0, i32 0
+  %20 = shufflevector <8 x i32> %19, <8 x i32> undef, 0, 0, 0, 0, 0, 0, 0, 0
+  %21 = insertelement <8 x i32> undef, i32 %0, i32 0
+  %22 = shufflevector <8 x i32> %21, <8 x i32> undef, 0, 0, 0, 0, 0, 0, 0, 0
+  %23 = insertelement <8 x i32> undef, i32 %0, i32 0
+  %24 = shufflevector <8 x i32> %23, <8 x i32> undef, 0, 0, 0, 0, 0, 0, 0, 0
+  %25 = insertelement <8 x i32> { undef, 1, 1, 1, 1, 1, 1, 1 }, i32 %0, i32 0
+  %26 = add i32 %15, 4294967264
+  %27 = lshr exact i32 %26, 5
+  %28 = add nsw nuw i32 %27, 1
+  %29 = and i32 %28, 3
+  %30 = icmp ult i32 %26, 96
+  br i1 %30, label %7, label %5
+
+%5:
+  %31 = sub nsw i32 %28, %29
+  br label %6
+
+%6:
+  %32 = phi <8 x i32> [ %25, %5 ], [ %49, %6 ]
+  %33 = phi <8 x i32> [ { 1, 1, 1, 1, 1, 1, 1, 1 }, %5 ], [ %50, %6 ]
+  %34 = phi <8 x i32> [ { 1, 1, 1, 1, 1, 1, 1, 1 }, %5 ], [ %51, %6 ]
+  %35 = phi <8 x i32> [ { 1, 1, 1, 1, 1, 1, 1, 1 }, %5 ], [ %52, %6 ]
+  %36 = phi i32 [ %31, %5 ], [ %53, %6 ]
+  %37 = mul <8 x i32> %32, %18
+  %38 = mul <8 x i32> %33, %20
+  %39 = mul <8 x i32> %34, %22
+  %40 = mul <8 x i32> %35, %24
+  %41 = mul <8 x i32> %37, %18
+  %42 = mul <8 x i32> %38, %20
+  %43 = mul <8 x i32> %39, %22
+  %44 = mul <8 x i32> %40, %24
+  %45 = mul <8 x i32> %41, %18
+  %46 = mul <8 x i32> %42, %20
+  %47 = mul <8 x i32> %43, %22
+  %48 = mul <8 x i32> %44, %24
+  %49 = mul <8 x i32> %45, %18
+  %50 = mul <8 x i32> %46, %20
+  %51 = mul <8 x i32> %47, %22
+  %52 = mul <8 x i32> %48, %24
+  %53 = add i32 %36, 4294967292
+  %54 = icmp eq i32 %53, 0
+  br i1 %54, label %7, label %6#2
+
+%6#2:
+  %32#2 = phi <8 x i32> [ %49, %6 ]
+  %33#2 = phi <8 x i32> [ %50, %6 ]
+  %34#2 = phi <8 x i32> [ %51, %6 ]
+  %35#2 = phi <8 x i32> [ %52, %6 ]
+  %36#2 = phi i32 [ %53, %6 ]
+  %37#2 = mul <8 x i32> %32#2, %18
+  %38#2 = mul <8 x i32> %33#2, %20
+  %39#2 = mul <8 x i32> %34#2, %22
+  %40#2 = mul <8 x i32> %35#2, %24
+  %41#2 = mul <8 x i32> %37#2, %18
+  %42#2 = mul <8 x i32> %38#2, %20
+  %43#2 = mul <8 x i32> %39#2, %22
+  %44#2 = mul <8 x i32> %40#2, %24
+  %45#2 = mul <8 x i32> %41#2, %18
+  %46#2 = mul <8 x i32> %42#2, %20
+  %47#2 = mul <8 x i32> %43#2, %22
+  %48#2 = mul <8 x i32> %44#2, %24
+  %49#2 = mul <8 x i32> %45#2, %18
+  %50#2 = mul <8 x i32> %46#2, %20
+  %51#2 = mul <8 x i32> %47#2, %22
+  %52#2 = mul <8 x i32> %48#2, %24
+  %53#2 = add i32 %36#2, 4294967292
+  %54#2 = icmp eq i32 %53#2, 0
+  br i1 %54#2, label %7, label #sink
+
+%7:
+  %55 = phi <8 x i32> [ undef, %4 ], [ %49, %6 ], [ %49#2, %6#2 ]
+  %56 = phi <8 x i32> [ undef, %4 ], [ %50, %6 ], [ %50#2, %6#2 ]
+  %57 = phi <8 x i32> [ undef, %4 ], [ %51, %6 ], [ %51#2, %6#2 ]
+  %58 = phi <8 x i32> [ undef, %4 ], [ %52, %6 ], [ %52#2, %6#2 ]
+  %59 = phi <8 x i32> [ %25, %4 ], [ %49, %6 ], [ %49#2, %6#2 ]
+  %60 = phi <8 x i32> [ { 1, 1, 1, 1, 1, 1, 1, 1 }, %4 ], [ %50, %6 ], [ %50#2, %6#2 ]
+  %61 = phi <8 x i32> [ { 1, 1, 1, 1, 1, 1, 1, 1 }, %4 ], [ %51, %6 ], [ %51#2, %6#2 ]
+  %62 = phi <8 x i32> [ { 1, 1, 1, 1, 1, 1, 1, 1 }, %4 ], [ %52, %6 ], [ %52#2, %6#2 ]
+  %63 = icmp eq i32 %29, 0
+  br i1 %63, label %9, label %8
+
+%8:
+  %64 = phi <8 x i32> [ %59, %7 ], [ %69, %8 ]
+  %65 = phi <8 x i32> [ %60, %7 ], [ %70, %8 ]
+  %66 = phi <8 x i32> [ %61, %7 ], [ %71, %8 ]
+  %67 = phi <8 x i32> [ %62, %7 ], [ %72, %8 ]
+  %68 = phi i32 [ %29, %7 ], [ %73, %8 ]
+  %69 = mul <8 x i32> %64, %18
+  %70 = mul <8 x i32> %65, %20
+  %71 = mul <8 x i32> %66, %22
+  %72 = mul <8 x i32> %67, %24
+  %73 = add i32 %68, 4294967295
+  %74 = icmp eq i32 %73, 0
+  br i1 %74, label %9, label %8#2
+
+%8#2:
+  %64#2 = phi <8 x i32> [ %69, %8 ]
+  %65#2 = phi <8 x i32> [ %70, %8 ]
+  %66#2 = phi <8 x i32> [ %71, %8 ]
+  %67#2 = phi <8 x i32> [ %72, %8 ]
+  %68#2 = phi i32 [ %73, %8 ]
+  %69#2 = mul <8 x i32> %64#2, %18
+  %70#2 = mul <8 x i32> %65#2, %20
+  %71#2 = mul <8 x i32> %66#2, %22
+  %72#2 = mul <8 x i32> %67#2, %24
+  %73#2 = add i32 %68#2, 4294967295
+  %74#2 = icmp eq i32 %73#2, 0
+  br i1 %74#2, label %9, label #sink
+
+%9:
+  %75 = phi <8 x i32> [ %55, %7 ], [ %69, %8 ], [ %69#2, %8#2 ]
+  %76 = phi <8 x i32> [ %56, %7 ], [ %70, %8 ], [ %70#2, %8#2 ]
+  %77 = phi <8 x i32> [ %57, %7 ], [ %71, %8 ], [ %71#2, %8#2 ]
+  %78 = phi <8 x i32> [ %58, %7 ], [ %72, %8 ], [ %72#2, %8#2 ]
+  %79 = mul <8 x i32> %76, %75
+  %80 = mul <8 x i32> %77, %79
+  %81 = mul <8 x i32> %78, %80
+  %82 = shufflevector <8 x i32> %81, <8 x i32> undef, 4, 5, 6, 7, 4294967295, 4294967295, 4294967295, 4294967295
+  %83 = mul <8 x i32> %81, %82
+  %84 = shufflevector <8 x i32> %83, <8 x i32> undef, 2, 3, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295
+  %85 = mul <8 x i32> %83, %84
+  %86 = shufflevector <8 x i32> %85, <8 x i32> undef, 1, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295
+  %87 = mul <8 x i32> %85, %86
+  %88 = extractelement <8 x i32> %87, i32 0
+  %89 = icmp eq i32 %13, %15
+  br i1 %89, label %12, label %10
+
+%10:
+  %90 = phi i32 [ %1, %3 ], [ %16, %9 ]
+  %91 = phi i32 [ %0, %3 ], [ %88, %9 ]
+  br label %11
+
+%11:
+  %92 = phi i32 [ %90, %10 ], [ %94, %11 ]
+  %93 = phi i32 [ %91, %10 ], [ %95, %11 ]
+  %94 = add nsw i32 %92, 4294967295
+  %95 = mul nsw i32 %93, %0
+  %96 = icmp eq i32 %94, 1
+  br i1 %96, label %12, label %11#2
+
+%11#2:
+  %92#2 = phi i32 [ %94, %11 ]
+  %93#2 = phi i32 [ %95, %11 ]
+  %94#2 = add nsw i32 %92#2, 4294967295
+  %95#2 = mul nsw i32 %93#2, %0
+  %96#2 = icmp eq i32 %94#2, 1
+  br i1 %96#2, label %12, label #sink
+
+%12:
+  %97 = phi i32 [ %0, %2 ], [ %88, %9 ], [ %95, %11 ], [ %95#2, %11#2 ]
+  ret i32 %97
+}
+terminate called after throwing an instance of 'util::AliveException'
+PLEASE submit a bug report to https://bugs.llvm.org/ and include the crash backtrace.
+Stack dump:
+0.	Program arguments: /home/stefan/llvm/build/bin/opt -enable-new-pm=0 -load /home/stefan/minotaur/build/minotaur.so -so -S function.ll
+1.	Running pass 'Function Pass Manager' on module 'function.ll'.
+2.	Running pass 'Superoptimizer' on function '@_Z8functionii'
+ #0 0x00007fc8c5ae9c14 PrintStackTraceSignalHandler(void*) Signals.cpp:0:0
+ #1 0x00007fc8c5ae6c9e SignalHandler(int) Signals.cpp:0:0
+ #2 0x00007fc8c5523210 (/lib/x86_64-linux-gnu/libc.so.6+0x46210)
+ #3 0x00007fc8c552318b raise /build/glibc-eX1tMB/glibc-2.31/signal/../sysdeps/unix/sysv/linux/raise.c:51:1
+ #4 0x00007fc8c5502859 abort /build/glibc-eX1tMB/glibc-2.31/stdlib/abort.c:81:7
+ #5 0x00007fc8c578a911 (/lib/x86_64-linux-gnu/libstdc++.so.6+0x9e911)
+ #6 0x00007fc8c579638c (/lib/x86_64-linux-gnu/libstdc++.so.6+0xaa38c)
+ #7 0x00007fc8c57963f7 (/lib/x86_64-linux-gnu/libstdc++.so.6+0xaa3f7)
+ #8 0x00007fc8c57966a9 (/lib/x86_64-linux-gnu/libstdc++.so.6+0xaa6a9)
+ #9 0x00007fc8c414d568 IR::State::operator[](IR::Value const&) (.cold) state.cpp:0:0
+#10 0x00007fc8c419e700 IR::BinOp::toSMT(IR::State&) const (/home/stefan/minotaur/build/minotaur.so+0xb6700)
+#11 0x00007fc8c41eced7 IR::State::exec(IR::Value const&) (/home/stefan/minotaur/build/minotaur.so+0x104ed7)
+#12 0x00007fc8c4254ce0 util::sym_exec(IR::State&) (/home/stefan/minotaur/build/minotaur.so+0x16cce0)
+#13 0x00007fc8c416deab minotaur::ConstantSynthesis::synthesize(std::unordered_map<IR::Value const*, smt::expr, std::hash<IR::Value const*>, std::equal_to<IR::Value const*>, std::allocator<std::pair<IR::Value const* const, smt::expr> > >&) const (/home/stefan/minotaur/build/minotaur.so+0x85eab)
+#14 0x00007fc8c415e45c minotaur::constantSynthesis(IR::Function&, IR::Function&, unsigned int&, unsigned int&, unsigned int&, std::unordered_map<IR::Value const*, llvm::Argument*, std::hash<IR::Value const*>, std::equal_to<IR::Value const*>, std::allocator<std::pair<IR::Value const* const, llvm::Argument*> > >&, std::unordered_map<llvm::Argument*, llvm::Constant*, std::hash<llvm::Argument*>, std::equal_to<llvm::Argument*>, std::allocator<std::pair<llvm::Argument* const, llvm::Constant*> > >&) (.constprop.0.isra.0) EnumerativeSynthesis.cpp:0:0
+#15 0x00007fc8c4162330 minotaur::synthesize(llvm::Function&, llvm::TargetLibraryInfo*) (/home/stefan/minotaur/build/minotaur.so+0x7a330)
+#16 0x00007fc8c5def7d3 llvm::FPPassManager::runOnFunction(llvm::Function&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x2727d3)
+#17 0x00007fc8c5defa19 llvm::FPPassManager::runOnModule(llvm::Module&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x272a19)
+#18 0x00007fc8c5df0c23 llvm::legacy::PassManagerImpl::run(llvm::Module&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x273c23)
+#19 0x0000559923ae0fc4 main (/home/stefan/llvm/build/bin/opt+0x27fc4)
+#20 0x00007fc8c55040b3 __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:342:3
+#21 0x0000559923ae1e7e _start (/home/stefan/llvm/build/bin/opt+0x28e7e)
+Aborted (core dumped)
