@@ -1,0 +1,198 @@
+Source file:
+
+int function(int val1, int depth = 1){
+	if (val1 <= 4)
+		return depth;
+	else if(val1 % 2)
+		return function(val1 / 2, depth + 1);
+	else
+		return function(val1 * 3 + 1, depth + 1);
+}
+
+Compiled using:
+clang++ -I -march=native -mavx2 -O3 -Werror -S -emit-llvm function.cpp -o function.ll
+
+Called supervec using:
+$HOME/llvm/build/bin/opt -enable-new-pm=0 -load $HOME/minotaur/build/minotaur.so -so -S function.ll
+
+
+Sketches output:
+---------Sketches------------
+(copy reservedconst)
+(and %, %)
+(and %, %)
+(and %, %)
+(and %, reservedconst)
+(and %, %)
+(and %, %)
+(and %, reservedconst)
+(and %, %)
+(and %, reservedconst)
+(or %, %)
+(or %, %)
+(or %, %)
+(or %, reservedconst)
+(or %, %)
+(or %, %)
+(or %, reservedconst)
+(or %, %)
+(or %, reservedconst)
+(xor %, %)
+(xor %, %)
+(xor %, %)
+(xor %, reservedconst)
+(xor %, %)
+(xor %, %)
+(xor %, reservedconst)
+(xor %, %)
+(xor %, reservedconst)
+(add %, %)
+(add %, %)
+(add %, %)
+(add %, reservedconst)
+(add %, %)
+(add %, %)
+(add %, reservedconst)
+(add %, %)
+(add %, reservedconst)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub reservedconst, %)
+(sub reservedconst, %)
+(sub reservedconst, %)
+(mul %, %)
+(mul %, %)
+(mul %, %)
+(mul %, reservedconst)
+(mul %, %)
+(mul %, %)
+(mul %, reservedconst)
+(mul %, %)
+(mul %, reservedconst)
+%
+%
+%
+-----------------------------
+
+----------------------------------------
+define i32 @_Z8functionii.292.293(i32 %0, i32 %1, i32 %_reservedc_0) noread nowrite nofree {
+%2:
+  %5 = icmp slt i32 %0, 5
+  br i1 %5, label %4, label %3
+
+%3:
+  %6 = phi i32 [ %1, %2 ], [ %7, %3 ]
+  %7 = add nsw i32 %6, 1
+  %8 = icmp slt i32 %0, 5
+  br i1 %8, label %4, label %3#2
+
+%3#2:
+  %6#2 = phi i32 [ %7, %3 ]
+  %7#2 = add nsw i32 %6#2, 1
+  %8#2 = icmp slt i32 %0, 5
+  br i1 %8#2, label %4, label #sink
+
+%4:
+  %9 = phi i32 [ %1, %2 ], [ %7, %3 ], [ %7#2, %3#2 ]
+  ret i32 %9
+}
+=>
+define i32 @_Z8functionii.292(i32 %0, i32 %1, i32 %_reservedc_0) noread nowrite nofree {
+%2:
+  %5 = icmp slt i32 %0, 5
+  br i1 %5, label %4, label %3
+
+%3:
+  %6 = phi i32 [ %1, %2 ], [ %7, %3 ]
+  %7 = add nsw i32 %6, 1
+  %8 = icmp slt i32 %0, 5
+  br i1 %8, label %4, label %3#2
+
+%3#2:
+  %6#2 = phi i32 [ %7, %3 ]
+  %7#2 = add nsw i32 %6#2, 1
+  %8#2 = icmp slt i32 %0, 5
+  br i1 %8#2, label %4, label #sink
+
+%4:
+  ret i32 %_reservedc_0
+}
+
+----------------------------------------
+define i32 @_Z8functionii(i32 %0, i32 %1) noread nowrite nofree {
+%2:
+  %5 = icmp slt i32 %0, 5
+  br i1 %5, label %4, label %3
+
+%3:
+  %6 = phi i32 [ %1, %2 ], [ %7, %3 ]
+  %7 = add nsw i32 %6, 1
+  %8 = icmp slt i32 %0, 5
+  br i1 %8, label %4, label %3#2
+
+%3#2:
+  %6#2 = phi i32 [ %7, %3 ]
+  %7#2 = add nsw i32 %6#2, 1
+  %8#2 = icmp slt i32 %0, 5
+  br i1 %8#2, label %4, label #sink
+
+%4:
+  %9 = phi i32 [ %1, %2 ], [ %7, %3 ], [ %7#2, %3#2 ]
+  ret i32 %9
+}
+=>
+define i32 @_Z8functionii.370(i32 %0, i32 %1) noread nowrite nofree {
+%2:
+  %5 = icmp slt i32 %0, 5
+  br i1 %5, label %4, label %3
+
+%3:
+  %6 = phi i32 [ %1, %2 ], [ %7, %3 ]
+  %7 = add nsw i32 %6, 1
+  %8 = icmp slt i32 %0, 5
+  br i1 %8, label %4, label %3#2
+
+%3#2:
+  %6#2 = phi i32 [ %7, %3 ]
+  %7#2 = add nsw i32 %6#2, 1
+  %8#2 = icmp slt i32 %0, 5
+  br i1 %8#2, label %4, label #sink
+
+%4:
+  %6#phi#0 = phi i32 [ %6, %3 ], [ %6#2, %3#2 ]
+  ret i32 %6#phi#0
+}
+Transformation seems to be correct!
+
+Instruction does not dominate all uses!
+  %5 = phi i32 [ %6, %4 ], [ %1, %2 ]
+  ret i32 %5
+in function _Z8functionii
+LLVM ERROR: Broken function found, compilation aborted!
+PLEASE submit a bug report to https://bugs.llvm.org/ and include the crash backtrace.
+Stack dump:
+0.	Program arguments: /home/stefan/llvm/build/bin/opt -enable-new-pm=0 -load /home/stefan/minotaur/build/minotaur.so -so -S function.ll
+1.	Running pass 'Function Pass Manager' on module 'function.ll'.
+2.	Running pass 'Module Verifier' on function '@_Z8functionii'
+ #0 0x00007fbfb0a37c14 PrintStackTraceSignalHandler(void*) Signals.cpp:0:0
+ #1 0x00007fbfb0a34c9e SignalHandler(int) Signals.cpp:0:0
+ #2 0x00007fbfb0471210 (/lib/x86_64-linux-gnu/libc.so.6+0x46210)
+ #3 0x00007fbfb047118b raise /build/glibc-eX1tMB/glibc-2.31/signal/../sysdeps/unix/sysv/linux/raise.c:51:1
+ #4 0x00007fbfb0450859 abort /build/glibc-eX1tMB/glibc-2.31/stdlib/abort.c:81:7
+ #5 0x00007fbfb092caba llvm::report_fatal_error(llvm::Twine const&, bool) (/home/stefan/llvm/build/bin/../lib/libLLVMSupport.so.14git+0xfdaba)
+ #6 0x00007fbfb092cc7e (/home/stefan/llvm/build/bin/../lib/libLLVMSupport.so.14git+0xfdc7e)
+ #7 0x00007fbfb0de1496 (anonymous namespace)::VerifierLegacyPass::runOnFunction(llvm::Function&) Verifier.cpp:0:0
+ #8 0x00007fbfb0d3d7d3 llvm::FPPassManager::runOnFunction(llvm::Function&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x2727d3)
+ #9 0x00007fbfb0d3da19 llvm::FPPassManager::runOnModule(llvm::Module&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x272a19)
+#10 0x00007fbfb0d3ec23 llvm::legacy::PassManagerImpl::run(llvm::Module&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x273c23)
+#11 0x000056341d378fc4 main (/home/stefan/llvm/build/bin/opt+0x27fc4)
+#12 0x00007fbfb04520b3 __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:342:3
+#13 0x000056341d379e7e _start (/home/stefan/llvm/build/bin/opt+0x28e7e)
+Aborted (core dumped)

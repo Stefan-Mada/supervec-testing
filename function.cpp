@@ -1,10 +1,10 @@
 #include "function.hpp"
 
-int function(int val1, int val2){
-	if(val2 == 1)
-		return val1;
-	else if (val2 < 1)
-		return 0;
-
-	return val1 * function(val1, val2 - 1);
+int function(int val1, int depth = 1){
+	if (val1 <= 4)
+		return depth;
+	else if(val1 % 2)
+		return function(val1 / 2, depth + 1);
+	else
+		return function(val1 * 3 + 1, depth + 1);
 }
