@@ -1,0 +1,262 @@
+Source file:
+
+void function(unsigned char vin[], unsigned char vout[], int height, int width)
+{
+	int currentIndex, avgColor, redColor, greenColor, blueColor;
+	
+	for(int i = 0; i < height; ++i)
+	{
+		for(int j = 0; j < width; ++j)
+		{
+			currentIndex = (i * width + j) * 3;
+
+			redColor = vin[currentIndex];
+			greenColor = vin[currentIndex + 1];
+			blueColor = vin[currentIndex + 2];
+
+			avgColor = (redColor + greenColor + blueColor) / 3;
+
+			for(int i = 0; i < 3; ++i)
+				vout[currentIndex + i] = avgColor;
+		}
+	}
+}
+
+Compiled using:
+clang++ -I -march=native -mavx2 -O3 -Werror -S -emit-llvm function.cpp -o function.ll
+
+Called supervec using:
+$HOME/llvm/build/bin/opt -enable-new-pm=0 -load $HOME/minotaur/build/minotaur.so -so -S function.ll
+
+
+Sketches output:
+---------Sketches------------
+(copy reservedconst)
+-----------------------------
+
+----------------------------------------
+define void @_Z8functionPhS_ii.48.49(* nocapture nowrite %0, * nocapture %1, i32 %2, i32 %3, i64 %_reservedc_0) nofree {
+%4:
+  %10 = icmp sgt i32 %3, 0
+  br i1 %10, label %5, label %9
+
+%5:
+  %11 = mul i32 %3, 3
+  %12 = zext i32 %3 to i64
+  %13 = zext i32 %2 to i64
+  %14 = zext i32 %3 to i64
+  br label %6
+
+%6:
+  %15 = phi i64 [ 0, %5 ], [ %43, %8 ]
+  %16 = trunc i64 %15 to i32
+  %17 = mul i32 %11, %16
+  %18 = sext i32 %17 to i64
+  %19 = mul nsw i64 %15, %12
+  br label %7
+
+%7:
+  %20 = phi i64 [ 0, %6 ], [ %41, %7 ]
+  %21 = mul nsw nuw i64 %20, 3
+  %22 = add nsw i64 %21, %18
+  %23 = gep * nocapture %1, 1 x i64 %22
+  %24 = add nsw nuw i64 %20, %19
+  %25 = mul nsw i64 %24, 3
+  %26 = gep inbounds * nocapture nowrite %0, 1 x i64 %25
+  %27 = load i8, * %26, align 1
+  %28 = zext i8 %27 to i16
+  %29 = add nsw nuw i64 %25, 1
+  %30 = gep inbounds * nocapture nowrite %0, 1 x i64 %29
+  %31 = load i8, * %30, align 1
+  %32 = zext i8 %31 to i16
+  %33 = add nsw nuw i64 %25, 2
+  %34 = gep inbounds * nocapture nowrite %0, 1 x i64 %33
+  %35 = load i8, * %34, align 1
+  %36 = zext i8 %35 to i16
+  %37 = add nsw nuw i16 %32, %28
+  %38 = add nsw nuw i16 %37, %36
+  %39 = udiv i16 %38, 3
+  %40 = trunc i16 %39 to i8
+  memset * %23 align 1, i8 %40, i64 3
+  %41 = add nsw nuw i64 %20, 1
+  %42 = icmp eq i64 %41, %14
+  br i1 %42, label %8, label %7
+
+%8:
+  %43 = add nsw nuw i64 %15, 1
+  %44 = icmp eq i64 %43, %13
+  br i1 %44, label %9, label %6#2
+
+%6#2:
+  %15#2 = phi i64 [ %43, %8 ]
+  %16#2 = trunc i64 %15#2 to i32
+  %17#2 = mul i32 %11, %16#2
+  %18#2 = sext i32 %17#2 to i64
+  %19#2 = mul nsw i64 %15#2, %12
+  br label %7#2
+
+%7#2:
+  %20#2 = phi i64 [ 0, %6#2 ], [ %41, %7 ]
+  %21#2 = mul nsw nuw i64 %20#2, 3
+  %22#2 = add nsw i64 %21#2, %18#2
+  %23#2 = gep * nocapture %1, 1 x i64 %22#2
+  %24#2 = add nsw nuw i64 %20#2, %19#2
+  %25#2 = mul nsw i64 %24#2, 3
+  %26#2 = gep inbounds * nocapture nowrite %0, 1 x i64 %25#2
+  %27#2 = load i8, * %26#2, align 1
+  %28#2 = zext i8 %27#2 to i16
+  %29#2 = add nsw nuw i64 %25#2, 1
+  %30#2 = gep inbounds * nocapture nowrite %0, 1 x i64 %29#2
+  %31#2 = load i8, * %30#2, align 1
+  %32#2 = zext i8 %31#2 to i16
+  %33#2 = add nsw nuw i64 %25#2, 2
+  %34#2 = gep inbounds * nocapture nowrite %0, 1 x i64 %33#2
+  %35#2 = load i8, * %34#2, align 1
+  %36#2 = zext i8 %35#2 to i16
+  %37#2 = add nsw nuw i16 %32#2, %28#2
+  %38#2 = add nsw nuw i16 %37#2, %36#2
+  %39#2 = udiv i16 %38#2, 3
+  %40#2 = trunc i16 %39#2 to i8
+  memset * %23#2 align 1, i8 %40#2, i64 3
+  %41#2 = add nsw nuw i64 %20#2, 1
+  %42#2 = icmp eq i64 %41#2, %14
+  br i1 %42#2, label %8#2, label %7#2
+
+%8#2:
+  %43#2 = add nsw nuw i64 %15#2, 1
+  %44#2 = icmp eq i64 %43#2, %13
+  br i1 %44#2, label %9, label %6#exit
+
+%9:
+  ret void
+
+%6#exit:
+  %15#exit = phi i64 [ %43#2, %8#2 ]
+  %16#exit = trunc i64 %15#exit to i32
+  %17#exit = mul i32 %11, %16#exit
+  %18#exit = sext i32 %17#exit to i64
+  %19#exit = mul nsw i64 %15#exit, %12
+  br label #sink
+}
+=>
+define void @_Z8functionPhS_ii.48(* nocapture nowrite %0, * nocapture %1, i32 %2, i32 %3, i64 %_reservedc_0) nofree {
+%4:
+  %10 = icmp sgt i32 %3, 0
+  br i1 %10, label %5, label %9
+
+%5:
+  %11 = mul i32 %3, 3
+  %12 = zext i32 %3 to i64
+  %13 = zext i32 %2 to i64
+  br label %6
+
+%6:
+  %14 = phi i64 [ 0, %5 ], [ %42, %8 ]
+  %15 = trunc i64 %14 to i32
+  %16 = mul i32 %11, %15
+  %17 = sext i32 %16 to i64
+  %18 = mul nsw i64 %14, %12
+  br label %7
+
+%7:
+  %19 = phi i64 [ 0, %6 ], [ %40, %7 ]
+  %20 = mul nsw nuw i64 %19, 3
+  %21 = add nsw i64 %20, %17
+  %22 = gep * nocapture %1, 1 x i64 %21
+  %23 = add nsw nuw i64 %19, %18
+  %24 = mul nsw i64 %23, 3
+  %25 = gep inbounds * nocapture nowrite %0, 1 x i64 %24
+  %26 = load i8, * %25, align 1
+  %27 = zext i8 %26 to i16
+  %28 = add nsw nuw i64 %24, 1
+  %29 = gep inbounds * nocapture nowrite %0, 1 x i64 %28
+  %30 = load i8, * %29, align 1
+  %31 = zext i8 %30 to i16
+  %32 = add nsw nuw i64 %24, 2
+  %33 = gep inbounds * nocapture nowrite %0, 1 x i64 %32
+  %34 = load i8, * %33, align 1
+  %35 = zext i8 %34 to i16
+  %36 = add nsw nuw i16 %31, %27
+  %37 = add nsw nuw i16 %36, %35
+  %38 = udiv i16 %37, 3
+  %39 = trunc i16 %38 to i8
+  memset * %22 align 1, i8 %39, i64 3
+  %40 = add nsw nuw i64 %19, 1
+  %41 = icmp eq i64 %40, %_reservedc_0
+  br i1 %41, label %8, label %7
+
+%8:
+  %42 = add nsw nuw i64 %14, 1
+  %43 = icmp eq i64 %42, %13
+  br i1 %43, label %9, label %6#2
+
+%6#2:
+  %14#2 = phi i64 [ %42, %8 ]
+  %15#2 = trunc i64 %14#2 to i32
+  %16#2 = mul i32 %11, %15#2
+  %17#2 = sext i32 %16#2 to i64
+  %18#2 = mul nsw i64 %14#2, %12
+  br label %7#2
+
+%7#2:
+  %19#2 = phi i64 [ 0, %6#2 ], [ %40, %7 ]
+  %20#2 = mul nsw nuw i64 %19#2, 3
+  %21#2 = add nsw i64 %20#2, %17#2
+  %22#2 = gep * nocapture %1, 1 x i64 %21#2
+  %23#2 = add nsw nuw i64 %19#2, %18#2
+  %24#2 = mul nsw i64 %23#2, 3
+  %25#2 = gep inbounds * nocapture nowrite %0, 1 x i64 %24#2
+  %26#2 = load i8, * %25#2, align 1
+  %27#2 = zext i8 %26#2 to i16
+  %28#2 = add nsw nuw i64 %24#2, 1
+  %29#2 = gep inbounds * nocapture nowrite %0, 1 x i64 %28#2
+  %30#2 = load i8, * %29#2, align 1
+  %31#2 = zext i8 %30#2 to i16
+  %32#2 = add nsw nuw i64 %24#2, 2
+  %33#2 = gep inbounds * nocapture nowrite %0, 1 x i64 %32#2
+  %34#2 = load i8, * %33#2, align 1
+  %35#2 = zext i8 %34#2 to i16
+  %36#2 = add nsw nuw i16 %31#2, %27#2
+  %37#2 = add nsw nuw i16 %36#2, %35#2
+  %38#2 = udiv i16 %37#2, 3
+  %39#2 = trunc i16 %38#2 to i8
+  memset * %22#2 align 1, i8 %39#2, i64 3
+  %40#2 = add nsw nuw i64 %19#2, 1
+  %41#2 = icmp eq i64 %40#2, %_reservedc_0
+  br i1 %41#2, label %8#2, label %7#2
+
+%8#2:
+  %42#2 = add nsw nuw i64 %14#2, 1
+  %43#2 = icmp eq i64 %42#2, %13
+  br i1 %43#2, label %9, label %6#exit
+
+%9:
+  ret void
+
+%6#exit:
+  %14#exit = phi i64 [ %42#2, %8#2 ]
+  %15#exit = trunc i64 %14#exit to i32
+  %16#exit = mul i32 %11, %15#exit
+  %17#exit = sext i32 %16#exit to i64
+  %18#exit = mul nsw i64 %14#exit, %12
+  br label #sink
+}
+constant synthesizer now only supports synthesizing integers and vector of integers
+PLEASE submit a bug report to https://bugs.llvm.org/ and include the crash backtrace.
+Stack dump:
+0.	Program arguments: /home/stefan/llvm/build/bin/opt -enable-new-pm=0 -load /home/stefan/minotaur/build/minotaur.so -so -S function.ll
+1.	Running pass 'Function Pass Manager' on module 'function.ll'.
+2.	Running pass 'Superoptimizer' on function '@_Z8functionPhS_ii'
+ #0 0x00007efe722d0c14 PrintStackTraceSignalHandler(void*) Signals.cpp:0:0
+ #1 0x00007efe722cdc9e SignalHandler(int) Signals.cpp:0:0
+ #2 0x00007efe71d0a210 (/lib/x86_64-linux-gnu/libc.so.6+0x46210)
+ #3 0x00007efe71f7be14 __dynamic_cast (/lib/x86_64-linux-gnu/libstdc++.so.6+0xa8e14)
+ #4 0x00007efe709522bb minotaur::LLVMGen::codeGen(minotaur::Inst*, llvm::ValueMap<llvm::Value const*, llvm::WeakTrackingVH, llvm::ValueMapConfig<llvm::Value const*, llvm::sys::SmartMutex<false> > >&, std::unordered_map<llvm::Argument*, llvm::Constant*, std::hash<llvm::Argument*>, std::equal_to<llvm::Argument*>, std::allocator<std::pair<llvm::Argument* const, llvm::Constant*> > >*) (/home/stefan/minotaur/build/minotaur.so+0x832bb)
+ #5 0x00007efe7094a014 minotaur::synthesize(llvm::Function&, llvm::TargetLibraryInfo*) (/home/stefan/minotaur/build/minotaur.so+0x7b014)
+ #6 0x00007efe725d67d3 llvm::FPPassManager::runOnFunction(llvm::Function&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x2727d3)
+ #7 0x00007efe725d6a19 llvm::FPPassManager::runOnModule(llvm::Module&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x272a19)
+ #8 0x00007efe725d7c23 llvm::legacy::PassManagerImpl::run(llvm::Module&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x273c23)
+ #9 0x00005652ce39dfc4 main (/home/stefan/llvm/build/bin/opt+0x27fc4)
+#10 0x00007efe71ceb0b3 __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:342:3
+#11 0x00005652ce39ee7e _start (/home/stefan/llvm/build/bin/opt+0x28e7e)
+Segmentation fault (core dumped)
