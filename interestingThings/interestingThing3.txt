@@ -1,0 +1,1451 @@
+Source file:
+
+char function(unsigned int val)
+{
+	constexpr int reps = 10;
+	char temp = 0;
+	for(short i = 0; i < reps; ++i){
+		temp += val;
+		val -= i * val;
+		temp += val + 2;
+		--val;
+	}
+	return temp;
+}
+
+Compiled using:
+clang++ -I -march=native -mavx2 -O3 -Werror -S -emit-llvm function.cpp -o function.ll
+
+Called supervec using:
+$HOME/llvm/build/bin/opt -enable-new-pm=0 -load $HOME/minotaur/build/minotaur.so -so -S function.ll
+
+Sketches output:
+---------Sketches------------
+(copy reservedconst)
+(and %, %)
+(and %, %)
+(and %, %)
+(and %, %)
+(and %, %)
+(and %, reservedconst)
+(and %, %)
+(and %, %)
+(and %, %)
+(and %, %)
+(and %, reservedconst)
+(and %, %)
+(and %, %)
+(and %, %)
+(and %, reservedconst)
+(and %, %)
+(and %, %)
+(and %, reservedconst)
+(and %, %)
+(and %, reservedconst)
+(or %, %)
+(or %, %)
+(or %, %)
+(or %, %)
+(or %, %)
+(or %, reservedconst)
+(or %, %)
+(or %, %)
+(or %, %)
+(or %, %)
+(or %, reservedconst)
+(or %, %)
+(or %, %)
+(or %, %)
+(or %, reservedconst)
+(or %, %)
+(or %, %)
+(or %, reservedconst)
+(or %, %)
+(or %, reservedconst)
+(xor %, %)
+(xor %, %)
+(xor %, %)
+(xor %, %)
+(xor %, %)
+(xor %, reservedconst)
+(xor %, %)
+(xor %, %)
+(xor %, %)
+(xor %, %)
+(xor %, reservedconst)
+(xor %, %)
+(xor %, %)
+(xor %, %)
+(xor %, reservedconst)
+(xor %, %)
+(xor %, %)
+(xor %, reservedconst)
+(xor %, %)
+(xor %, reservedconst)
+(add %, %)
+(add %, %)
+(add %, %)
+(add %, %)
+(add %, %)
+(add %, reservedconst)
+(add %, %)
+(add %, %)
+(add %, %)
+(add %, %)
+(add %, reservedconst)
+(add %, %)
+(add %, %)
+(add %, %)
+(add %, reservedconst)
+(add %, %)
+(add %, %)
+(add %, reservedconst)
+(add %, %)
+(add %, reservedconst)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub reservedconst, %)
+(sub reservedconst, %)
+(sub reservedconst, %)
+(sub reservedconst, %)
+(sub reservedconst, %)
+(mul %, %)
+(mul %, %)
+(mul %, %)
+(mul %, %)
+(mul %, %)
+(mul %, reservedconst)
+(mul %, %)
+(mul %, %)
+(mul %, %)
+(mul %, %)
+(mul %, reservedconst)
+(mul %, %)
+(mul %, %)
+(mul %, %)
+(mul %, reservedconst)
+(mul %, %)
+(mul %, %)
+(mul %, reservedconst)
+(mul %, %)
+(mul %, reservedconst)
+%
+%
+%
+%
+%
+-----------------------------
+
+----------------------------------------
+define i8 @_Z8functionj.222.223(i32 %0, i8 %_reservedc_0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.222(i32 %0, i8 %_reservedc_0) noread nowrite nofree {
+%1:
+  %2 = add i8 %_reservedc_0, 216
+  ret i8 %2
+}
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.384(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 216
+  ret i8 %3
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000000 (0)
+
+Source:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %4 = #x02 (2)
+i8 %5 = #x00 (0)
+i8 %6 = #x01 (1)
+i8 %7 = #x03 (3)
+i8 %8 = #xdb (219, -37)
+
+Target:
+i8 %2 = #x00 (0)
+i8 %3 = #xd8 (216, -40)
+Source value: #xdb (219, -37)
+Target value: #xd8 (216, -40)
+
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.388(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 216
+  ret i8 %3
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000000 (0)
+
+Source:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %4 = #x02 (2)
+i8 %5 = #x00 (0)
+i8 %6 = #x01 (1)
+i8 %7 = #x03 (3)
+i8 %8 = #xdb (219, -37)
+
+Target:
+i8 %2 = #x00 (0)
+i8 %3 = #xd8 (216, -40)
+Source value: #xdb (219, -37)
+Target value: #xd8 (216, -40)
+
+
+----------------------------------------
+define i8 @_Z8functionj.229.230(i32 %0, i8 %_reservedc_1) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.229(i32 %0, i8 %_reservedc_1) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %and = and i8 %2, %_reservedc_1
+  %3 = add i8 %and, 216
+  ret i8 %3
+}
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.296(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %xor = xor i8 %2, %2
+  %3 = add i8 %xor, 216
+  ret i8 %3
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000000 (0)
+
+Source:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %4 = #x02 (2)
+i8 %5 = #x00 (0)
+i8 %6 = #x01 (1)
+i8 %7 = #x03 (3)
+i8 %8 = #xdb (219, -37)
+
+Target:
+i8 %2 = #x00 (0)
+i8 %xor = #x00 (0)
+i8 %3 = #xd8 (216, -40)
+Source value: #xdb (219, -37)
+Target value: #xd8 (216, -40)
+
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.381(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %mul = mul i8 %2, %2
+  %3 = add i8 %mul, 216
+  ret i8 %3
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000011 (17)
+
+Source:
+i8 %2 = #x11 (17)
+i8 %3 = #x13 (19)
+i8 %4 = #x24 (36)
+i8 %5 = #x11 (17)
+i8 %6 = #x12 (18)
+i8 %7 = #x36 (54)
+i8 %8 = #x0e (14)
+
+Target:
+i8 %2 = #x11 (17)
+i8 %mul = #x21 (33)
+i8 %3 = #xf9 (249, -7)
+Source value: #x0e (14)
+Target value: #xf9 (249, -7)
+
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.385(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, 216
+  ret i8 %4
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000000 (0)
+
+Source:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %4 = #x02 (2)
+i8 %5 = #x00 (0)
+i8 %6 = #x01 (1)
+i8 %7 = #x03 (3)
+i8 %8 = #xdb (219, -37)
+
+Target:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %4 = #xda (218, -38)
+Source value: #xdb (219, -37)
+Target value: #xda (218, -38)
+
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.386(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 1
+  %4 = add i8 %3, 216
+  ret i8 %4
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000000 (0)
+
+Source:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %4 = #x02 (2)
+i8 %5 = #x00 (0)
+i8 %6 = #x01 (1)
+i8 %7 = #x03 (3)
+i8 %8 = #xdb (219, -37)
+
+Target:
+i8 %2 = #x00 (0)
+i8 %3 = #x01 (1)
+i8 %4 = #xd9 (217, -39)
+Source value: #xdb (219, -37)
+Target value: #xd9 (217, -39)
+
+
+----------------------------------------
+define i8 @_Z8functionj.382.383(i32 %0, i8 %_reservedc_30) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.382(i32 %0, i8 %_reservedc_30) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %mul = mul i8 %2, %_reservedc_30
+  %3 = add i8 %mul, 216
+  ret i8 %3
+}
+
+----------------------------------------
+define i8 @_Z8functionj.297.298(i32 %0, i8 %_reservedc_15) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.297(i32 %0, i8 %_reservedc_15) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %xor = xor i8 %2, %_reservedc_15
+  %3 = add i8 %xor, 216
+  ret i8 %3
+}
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.299(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %add = add i8 %2, %2
+  %3 = add i8 %add, 216
+  ret i8 %3
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000002 (2)
+
+Source:
+i8 %2 = #x02 (2)
+i8 %3 = #x04 (4)
+i8 %4 = #x06 (6)
+i8 %5 = #x02 (2)
+i8 %6 = #x03 (3)
+i8 %7 = #x09 (9)
+i8 %8 = #xe1 (225, -31)
+
+Target:
+i8 %2 = #x02 (2)
+i8 %add = #x04 (4)
+i8 %3 = #xdc (220, -36)
+Source value: #xe1 (225, -31)
+Target value: #xdc (220, -36)
+
+
+----------------------------------------
+define i8 @_Z8functionj.254.255(i32 %0, i8 %_reservedc_6) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.254(i32 %0, i8 %_reservedc_6) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %or = or i8 %2, %_reservedc_6
+  %3 = add i8 %or, 216
+  ret i8 %3
+}
+
+----------------------------------------
+define i8 @_Z8functionj.357.358(i32 %0, i8 %_reservedc_25) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.357(i32 %0, i8 %_reservedc_25) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %sub = sub i8 %_reservedc_25, %2
+  %3 = add i8 %sub, 216
+  ret i8 %3
+}
+
+----------------------------------------
+define i8 @_Z8functionj.364.365(i32 %0, i8 %_reservedc_26) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.364(i32 %0, i8 %_reservedc_26) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %mul = mul i8 %2, %_reservedc_26
+  %3 = add i8 %mul, 216
+  ret i8 %3
+}
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.359(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %mul = mul i8 %2, %2
+  %3 = add i8 %mul, 216
+  ret i8 %3
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000011 (17)
+
+Source:
+i8 %2 = #x11 (17)
+i8 %3 = #x13 (19)
+i8 %4 = #x24 (36)
+i8 %5 = #x11 (17)
+i8 %6 = #x12 (18)
+i8 %7 = #x36 (54)
+i8 %8 = #x0e (14)
+
+Target:
+i8 %2 = #x11 (17)
+i8 %mul = #x21 (33)
+i8 %3 = #xf9 (249, -7)
+Source value: #x0e (14)
+Target value: #xf9 (249, -7)
+
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.348(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %sub = sub i8 %2, %2
+  %3 = add i8 %sub, 216
+  ret i8 %3
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000000 (0)
+
+Source:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %4 = #x02 (2)
+i8 %5 = #x00 (0)
+i8 %6 = #x01 (1)
+i8 %7 = #x03 (3)
+i8 %8 = #xdb (219, -37)
+
+Target:
+i8 %2 = #x00 (0)
+i8 %sub = #x00 (0)
+i8 %3 = #xd8 (216, -40)
+Source value: #xdb (219, -37)
+Target value: #xd8 (216, -40)
+
+
+----------------------------------------
+define i8 @_Z8functionj.349.350(i32 %0, i8 %_reservedc_21) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.349(i32 %0, i8 %_reservedc_21) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %sub = sub i8 %_reservedc_21, %2
+  %3 = add i8 %sub, 216
+  ret i8 %3
+}
+
+----------------------------------------
+define i8 @_Z8functionj.247.248(i32 %0, i8 %_reservedc_5) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.247(i32 %0, i8 %_reservedc_5) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %and = and i8 %2, %_reservedc_5
+  %3 = add i8 %and, 216
+  ret i8 %3
+}
+
+----------------------------------------
+define i8 @_Z8functionj.279.280(i32 %0, i8 %_reservedc_11) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.279(i32 %0, i8 %_reservedc_11) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %xor = xor i8 %2, %_reservedc_11
+  %3 = add i8 %xor, 216
+  ret i8 %3
+}
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.249(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %or = or i8 %2, %2
+  %3 = add i8 %or, 216
+  ret i8 %3
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000000 (0)
+
+Source:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %4 = #x02 (2)
+i8 %5 = #x00 (0)
+i8 %6 = #x01 (1)
+i8 %7 = #x03 (3)
+i8 %8 = #xdb (219, -37)
+
+Target:
+i8 %2 = #x00 (0)
+i8 %or = #x00 (0)
+i8 %3 = #xd8 (216, -40)
+Source value: #xdb (219, -37)
+Target value: #xd8 (216, -40)
+
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.274(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %xor = xor i8 %2, %2
+  %3 = add i8 %xor, 216
+  ret i8 %3
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000000 (0)
+
+Source:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %4 = #x02 (2)
+i8 %5 = #x00 (0)
+i8 %6 = #x01 (1)
+i8 %7 = #x03 (3)
+i8 %8 = #xdb (219, -37)
+
+Target:
+i8 %2 = #x00 (0)
+i8 %xor = #x00 (0)
+i8 %3 = #xd8 (216, -40)
+Source value: #xdb (219, -37)
+Target value: #xd8 (216, -40)
+
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.224(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %and = and i8 %2, %2
+  %3 = add i8 %and, 216
+  ret i8 %3
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000000 (0)
+
+Source:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %4 = #x02 (2)
+i8 %5 = #x00 (0)
+i8 %6 = #x01 (1)
+i8 %7 = #x03 (3)
+i8 %8 = #xdb (219, -37)
+
+Target:
+i8 %2 = #x00 (0)
+i8 %and = #x00 (0)
+i8 %3 = #xd8 (216, -40)
+Source value: #xdb (219, -37)
+Target value: #xd8 (216, -40)
+
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.271(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %or = or i8 %2, %2
+  %3 = add i8 %or, 216
+  ret i8 %3
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000000 (0)
+
+Source:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %4 = #x02 (2)
+i8 %5 = #x00 (0)
+i8 %6 = #x01 (1)
+i8 %7 = #x03 (3)
+i8 %8 = #xdb (219, -37)
+
+Target:
+i8 %2 = #x00 (0)
+i8 %or = #x00 (0)
+i8 %3 = #xd8 (216, -40)
+Source value: #xdb (219, -37)
+Target value: #xd8 (216, -40)
+
+
+----------------------------------------
+define i8 @_Z8functionj.272.273(i32 %0, i8 %_reservedc_10) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.272(i32 %0, i8 %_reservedc_10) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %or = or i8 %2, %_reservedc_10
+  %3 = add i8 %or, 216
+  ret i8 %3
+}
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.324(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %sub = sub i8 %2, %2
+  %3 = add i8 %sub, 216
+  ret i8 %3
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000000 (0)
+
+Source:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %4 = #x02 (2)
+i8 %5 = #x00 (0)
+i8 %6 = #x01 (1)
+i8 %7 = #x03 (3)
+i8 %8 = #xdb (219, -37)
+
+Target:
+i8 %2 = #x00 (0)
+i8 %sub = #x00 (0)
+i8 %3 = #xd8 (216, -40)
+Source value: #xdb (219, -37)
+Target value: #xd8 (216, -40)
+
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.321(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %add = add i8 %2, %2
+  %3 = add i8 %add, 216
+  ret i8 %3
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000002 (2)
+
+Source:
+i8 %2 = #x02 (2)
+i8 %3 = #x04 (4)
+i8 %4 = #x06 (6)
+i8 %5 = #x02 (2)
+i8 %6 = #x03 (3)
+i8 %7 = #x09 (9)
+i8 %8 = #xe1 (225, -31)
+
+Target:
+i8 %2 = #x02 (2)
+i8 %add = #x04 (4)
+i8 %3 = #xdc (220, -36)
+Source value: #xe1 (225, -31)
+Target value: #xdc (220, -36)
+
+
+----------------------------------------
+define i8 @_Z8functionj.322.323(i32 %0, i8 %_reservedc_20) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.322(i32 %0, i8 %_reservedc_20) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %add = add i8 %2, %_reservedc_20
+  %3 = add i8 %add, 216
+  ret i8 %3
+}
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.246(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %and = and i8 %2, %2
+  %3 = add i8 %and, 216
+  ret i8 %3
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000000 (0)
+
+Source:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %4 = #x02 (2)
+i8 %5 = #x00 (0)
+i8 %6 = #x01 (1)
+i8 %7 = #x03 (3)
+i8 %8 = #xdb (219, -37)
+
+Target:
+i8 %2 = #x00 (0)
+i8 %and = #x00 (0)
+i8 %3 = #xd8 (216, -40)
+Source value: #xdb (219, -37)
+Target value: #xd8 (216, -40)
+
+
+----------------------------------------
+define i8 @_Z8functionj.304.305(i32 %0, i8 %_reservedc_16) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.304(i32 %0, i8 %_reservedc_16) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %add = add i8 %2, %_reservedc_16
+  %3 = add i8 %add, 216
+  ret i8 %3
+}
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.303(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = trunc i32 %0 to i8
+  %add = add i8 %2, %3
+  %4 = add i8 %add, 216
+  ret i8 %4
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000002 (2)
+
+Source:
+i8 %2 = #x02 (2)
+i8 %3 = #x04 (4)
+i8 %4 = #x06 (6)
+i8 %5 = #x02 (2)
+i8 %6 = #x03 (3)
+i8 %7 = #x09 (9)
+i8 %8 = #xe1 (225, -31)
+
+Target:
+i8 %2 = #x02 (2)
+i8 %3 = #x02 (2)
+i8 %add = #x04 (4)
+i8 %4 = #xdc (220, -36)
+Source value: #xe1 (225, -31)
+Target value: #xdc (220, -36)
+
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.387(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = add i8 %4, 216
+  ret i8 %5
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000000 (0)
+
+Source:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %4 = #x02 (2)
+i8 %5 = #x00 (0)
+i8 %6 = #x01 (1)
+i8 %7 = #x03 (3)
+i8 %8 = #xdb (219, -37)
+
+Target:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %4 = #x02 (2)
+i8 %5 = #xda (218, -38)
+Source value: #xdb (219, -37)
+Target value: #xda (218, -38)
+
+
+----------------------------------------
+define i8 @_Z8functionj.260.261(i32 %0, i8 %_reservedc_7) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.260(i32 %0, i8 %_reservedc_7) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %or = or i8 %3, %_reservedc_7
+  %4 = add i8 %or, 216
+  ret i8 %4
+}
+
+----------------------------------------
+define i8 @_Z8functionj.240.241(i32 %0, i8 %_reservedc_3) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.240(i32 %0, i8 %_reservedc_3) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 1
+  %and = and i8 %3, %_reservedc_3
+  %4 = add i8 %and, 216
+  ret i8 %4
+}
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.300(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %add = add i8 %2, %3
+  %4 = add i8 %add, 216
+  ret i8 %4
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000000 (0)
+
+Source:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %4 = #x02 (2)
+i8 %5 = #x00 (0)
+i8 %6 = #x01 (1)
+i8 %7 = #x03 (3)
+i8 %8 = #xdb (219, -37)
+
+Target:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %add = #x02 (2)
+i8 %4 = #xda (218, -38)
+Source value: #xdb (219, -37)
+Target value: #xda (218, -38)
+
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.253(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = trunc i32 %0 to i8
+  %or = or i8 %2, %3
+  %4 = add i8 %or, 216
+  ret i8 %4
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000000 (0)
+
+Source:
+i8 %2 = #x00 (0)
+i8 %3 = #x02 (2)
+i8 %4 = #x02 (2)
+i8 %5 = #x00 (0)
+i8 %6 = #x01 (1)
+i8 %7 = #x03 (3)
+i8 %8 = #xdb (219, -37)
+
+Target:
+i8 %2 = #x00 (0)
+i8 %3 = #x00 (0)
+i8 %or = #x00 (0)
+i8 %4 = #xd8 (216, -40)
+Source value: #xdb (219, -37)
+Target value: #xd8 (216, -40)
+
+
+----------------------------------------
+define i8 @_Z8functionj.285.286(i32 %0, i8 %_reservedc_12) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.285(i32 %0, i8 %_reservedc_12) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %xor = xor i8 %3, %_reservedc_12
+  %4 = add i8 %xor, 216
+  ret i8 %4
+}
+
+----------------------------------------
+define i8 @_Z8functionj(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.225(i32 %0) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %and = and i8 %2, %3
+  %4 = add i8 %and, 216
+  ret i8 %4
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+i32 %0 = #x00000082 (130)
+
+Source:
+i8 %2 = #x82 (130, -126)
+i8 %3 = #x84 (132, -124)
+i8 %4 = #x06 (6)
+i8 %5 = #x82 (130, -126)
+i8 %6 = #x83 (131, -125)
+i8 %7 = #x89 (137, -119)
+i8 %8 = #x61 (97)
+
+Target:
+i8 %2 = #x82 (130, -126)
+i8 %3 = #x84 (132, -124)
+i8 %and = #x80 (128, -128)
+i8 %4 = #x58 (88)
+Source value: #x61 (97)
+Target value: #x58 (88)
+
+
+----------------------------------------
+define i8 @_Z8functionj.375.376(i32 %0, i8 %_reservedc_28) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 2
+  %4 = add i8 %3, %2
+  %5 = trunc i32 %0 to i8
+  %6 = add i8 %5, 1
+  %7 = add i8 %6, %4
+  %8 = add i8 %7, 216
+  ret i8 %8
+}
+=>
+define i8 @_Z8functionj.375(i32 %0, i8 %_reservedc_28) noread nowrite nofree {
+%1:
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 1
+  %mul = mul i8 %3, %_reservedc_28
+  %4 = add i8 %mul, 216
+  ret i8 %4
+}
+;result
+i8 %_reservedc_28 = #x03 (3)
+; ModuleID = 'function.ll'
+source_filename = "function.cpp"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-pc-linux-gnu"
+
+; Function Attrs: norecurse nounwind readnone uwtable
+define dso_local signext i8 @_Z8functionj(i32 %0) local_unnamed_addr #0 {
+  %2 = trunc i32 %0 to i8
+  %3 = add i8 %2, 1
+  %mul = mul i8 %3, 3
+  %4 = add i8 %mul, -40
+  ret i8 %4
+}
+
+attributes #0 = { norecurse nounwind readnone uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "frame-pointer"="none" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+avx,+avx2,+cx8,+fxsr,+mmx,+popcnt,+sse,+sse2,+sse3,+sse4.1,+sse4.2,+ssse3,+x87,+xsave" "unsafe-fp-math"="false" "use-soft-float"="false" }
+
+!llvm.module.flags = !{!0}
+!llvm.ident = !{!1}
+
+!0 = !{i32 1, !"wchar_size", i32 4}
+!1 = !{!"clang version 10.0.0-4ubuntu1 "}
