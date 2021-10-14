@@ -1,0 +1,42 @@
+Source file (ISPC code):
+
+export void greyScaleISPC(uniform unsigned int8 vin[], uniform unsigned int8 vout[],
+                   uniform int length) {
+    
+	foreach(index = 0 ... length)
+		vout[index] = vin[index];
+}
+
+Compiled using:
+ispc --target avx2-i32x8 -O3 --emit-llvm-text functionispc.ispc -o functionispc.ll
+
+Called supervec using:
+$HOME/llvm/build/bin/opt -enable-new-pm=0 -load $HOME/minotaur/build/minotaur.so -so -S functionispc.ll
+
+
+Sketches output:
+$HOME/llvm/build/bin/opt  -enable-new-pm=0 -load $HOME/minotaur/build/minotaur.so -so -S functionispc.ll
+---------Sketches------------
+(copy reservedconst)
+-----------------------------
+PLEASE submit a bug report to https://bugs.llvm.org/ and include the crash backtrace.
+Stack dump:
+0.	Program arguments: /home/stefan/llvm/build/bin/opt -enable-new-pm=0 -load /home/stefan/minotaur/build/minotaur.so -so -S functionispc.ll
+1.	Running pass 'Function Pass Manager' on module 'functionispc.ll'.
+2.	Running pass 'Superoptimizer' on function '@greyScaleISPC___un_3C_unT_3E_un_3C_unT_3E_uni'
+ #0 0x00007fb14bda3c14 PrintStackTraceSignalHandler(void*) Signals.cpp:0:0
+ #1 0x00007fb14bda0c9e SignalHandler(int) Signals.cpp:0:0
+ #2 0x00007fb14b7dd210 (/lib/x86_64-linux-gnu/libc.so.6+0x46210)
+ #3 0x00007fb14bad8f1d std::ostream::sentry::sentry(std::ostream&) (/lib/x86_64-linux-gnu/libstdc++.so.6+0x132f1d)
+ #4 0x00007fb14bad96cc std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long) (/lib/x86_64-linux-gnu/libstdc++.so.6+0x1336cc)
+ #5 0x00007fb14a4cf63c (anonymous namespace)::llvm2alive_::handleParamAttrs(llvm::AttributeSet const&, IR::ParamAttrs&, bool) llvm2alive.cpp:0:0
+ #6 0x00007fb14a4da20c (anonymous namespace)::llvm2alive_::run() llvm2alive.cpp:0:0
+ #7 0x00007fb14a4dc44e llvm_util::llvm2alive(llvm::Function&, llvm::TargetLibraryInfo const&, std::vector<std::basic_string_view<char, std::char_traits<char> >, std::allocator<std::basic_string_view<char, std::char_traits<char> > > > const&) (/home/stefan/minotaur/build/minotaur.so+0x13a44e)
+ #8 0x00007fb14a41bc28 minotaur::synthesize(llvm::Function&, llvm::TargetLibraryInfo*) (/home/stefan/minotaur/build/minotaur.so+0x79c28)
+ #9 0x00007fb14c0a97d3 llvm::FPPassManager::runOnFunction(llvm::Function&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x2727d3)
+#10 0x00007fb14c0a9a19 llvm::FPPassManager::runOnModule(llvm::Module&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x272a19)
+#11 0x00007fb14c0aac23 llvm::legacy::PassManagerImpl::run(llvm::Module&) (/home/stefan/llvm/build/bin/../lib/libLLVMCore.so.14git+0x273c23)
+#12 0x00005584c7fc6fc4 main (/home/stefan/llvm/build/bin/opt+0x27fc4)
+#13 0x00007fb14b7be0b3 __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:342:3
+#14 0x00005584c7fc7e7e _start (/home/stefan/llvm/build/bin/opt+0x28e7e)
+Segmentation fault (core dumped)
