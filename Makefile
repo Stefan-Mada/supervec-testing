@@ -1,6 +1,6 @@
 CC=clang++
 WARN=-Werror
-CFLAGS=-I -march=native -mavx2 -O3
+CFLAGS=-I -march=native -mavx2 -O1
 ISPCFLAGS=--target avx2-i32x8 -O3
 DEPS = function.hpp
 
