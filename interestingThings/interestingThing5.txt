@@ -1,0 +1,433 @@
+Source file:
+
+#include <immintrin.h>
+
+__m256i function(__m256i vec1)
+{	
+	const __m256i vec2 = _mm256_setr_epi8(	1, 0, 3, 2, 5, 4, 7, 6, 5, 3, 27, 27, 25, 15, 13, 15,
+						16, 17, 18, 14, 13, 12, 31, 25, 16, 27, 1, 11, 12,
+					       	14, 15, 16);
+	vec1 = _mm256_shuffle_epi8(vec1, vec2);
+	vec1 = _mm256_shuffle_epi8(vec1, vec2);
+	
+	return vec1;
+}
+
+Compiled using:
+clang++ -I -march=native -mavx2 -O3 -Werror -S -emit-llvm function.cpp -o function.ll
+
+Called supervec using:
+$HOME/llvm/build/bin/opt -enable-new-pm=0 -load $HOME/minotaur/build/minotaur.so -so -S function.ll
+
+Sketches output:
+---------Sketches------------
+(copy reservedconst)
+(and %, %)
+(and %, %)
+(and %, reservedconst)
+(and %, %)
+(and %, reservedconst)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, reservedconst)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, reservedconst)
+(x86.avx2.pavg.b reservedconst, %)
+(x86.avx2.pavg.b reservedconst, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, reservedconst)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, reservedconst)
+(x86.avx2.pshuf.b reservedconst, %)
+(x86.avx2.pshuf.b reservedconst, %)
+(or %, %)
+(or %, %)
+(or %, reservedconst)
+(or %, %)
+(or %, reservedconst)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, reservedconst)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, reservedconst)
+(x86.avx2.pavg.b reservedconst, %)
+(x86.avx2.pavg.b reservedconst, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, reservedconst)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, reservedconst)
+(x86.avx2.pshuf.b reservedconst, %)
+(x86.avx2.pshuf.b reservedconst, %)
+(xor %, %)
+(xor %, %)
+(xor %, reservedconst)
+(xor %, %)
+(xor %, reservedconst)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, reservedconst)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, reservedconst)
+(x86.avx2.pavg.b reservedconst, %)
+(x86.avx2.pavg.b reservedconst, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, reservedconst)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, reservedconst)
+(x86.avx2.pshuf.b reservedconst, %)
+(x86.avx2.pshuf.b reservedconst, %)
+(add %, %)
+(add %, %)
+(add %, reservedconst)
+(add %, %)
+(add %, reservedconst)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, reservedconst)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, reservedconst)
+(x86.avx2.pavg.b reservedconst, %)
+(x86.avx2.pavg.b reservedconst, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, reservedconst)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, reservedconst)
+(x86.avx2.pshuf.b reservedconst, %)
+(x86.avx2.pshuf.b reservedconst, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub %, %)
+(sub reservedconst, %)
+(sub reservedconst, %)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, reservedconst)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, reservedconst)
+(x86.avx2.pavg.b reservedconst, %)
+(x86.avx2.pavg.b reservedconst, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, reservedconst)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, reservedconst)
+(x86.avx2.pshuf.b reservedconst, %)
+(x86.avx2.pshuf.b reservedconst, %)
+(mul %, %)
+(mul %, %)
+(mul %, reservedconst)
+(mul %, %)
+(mul %, reservedconst)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, reservedconst)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, %)
+(x86.avx2.pavg.b %, reservedconst)
+(x86.avx2.pavg.b reservedconst, %)
+(x86.avx2.pavg.b reservedconst, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, reservedconst)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, %)
+(x86.avx2.pshuf.b %, reservedconst)
+(x86.avx2.pshuf.b reservedconst, %)
+(x86.avx2.pshuf.b reservedconst, %)
+%
+%
+-----------------------------
+
+----------------------------------------
+define <4 x i64> @_Z8functionDv4_x.34.35(<4 x i64> %0, <32 x i8> %_reservedc_0) noread nowrite nofree {
+%1:
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %3 = shufflevector <32 x i8> %2, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 4294967295, 3, 4294967295, 11, 4294967295, 15, 4294967295, 15, 16, 17, 18, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 27, 4294967295, 27, 28, 30, 31, 16
+  %4 = shufflevector <32 x i8> %3, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 5, 3, 11, 11, 9, 15, 13, 15, 16, 17, 18, 30, 29, 28, 31, 25, 16, 27, 17, 27, 28, 30, 31, 16
+  %5 = bitcast <32 x i8> %4 to <4 x i64>
+  ret <4 x i64> %5
+}
+=>
+define <4 x i64> @_Z8functionDv4_x.34(<4 x i64> %0, <32 x i8> %_reservedc_0) noread nowrite nofree {
+%1:
+  %2 = bitcast <32 x i8> %_reservedc_0 to <4 x i64>
+  ret <4 x i64> %2
+}
+
+----------------------------------------
+define <4 x i64> @_Z8functionDv4_x(<4 x i64> %0) noread nowrite nofree {
+%1:
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %3 = shufflevector <32 x i8> %2, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 4294967295, 3, 4294967295, 11, 4294967295, 15, 4294967295, 15, 16, 17, 18, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 27, 4294967295, 27, 28, 30, 31, 16
+  %4 = shufflevector <32 x i8> %3, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 5, 3, 11, 11, 9, 15, 13, 15, 16, 17, 18, 30, 29, 28, 31, 25, 16, 27, 17, 27, 28, 30, 31, 16
+  %5 = bitcast <32 x i8> %4 to <4 x i64>
+  ret <4 x i64> %5
+}
+=>
+define <4 x i64> @_Z8functionDv4_x.224(<4 x i64> %0) noread nowrite nofree {
+%1:
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %3 = bitcast <32 x i8> %2 to <4 x i64>
+  ret <4 x i64> %3
+}
+Transformation doesn't verify!
+ERROR: Value mismatch
+
+Example:
+<4 x i64> %0 = < #x0000000000000000 (0), #x0000000000000001 (1), #x0000000000000001 (1), #x0000000000000000 (0) >
+
+Source:
+<32 x i8> %2 = < #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x01 (1), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x01 (1), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0) >
+<32 x i8> %3 = < #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), any, #x00 (0), any, #x00 (0), any, #x00 (0), any, #x00 (0), #x01 (1), #x00 (0), #x00 (0), any, any, any, any, any, any, #x00 (0), any, #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x01 (1) >
+<32 x i8> %4 = < #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x01 (1), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x01 (1), #x00 (0), #x01 (1), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x01 (1), #x01 (1) >
+<4 x i64> %5 = < #x0000000000000000 (0), #x0000000000000000 (0), #x0001000000000001 (281474976710657), #x0101000000000001 (72339069014638593) >
+
+Target:
+<32 x i8> %2 = < #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x01 (1), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x01 (1), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0) >
+<4 x i64> %3 = < #x0000000000000000 (0), #x0000000000000001 (1), #x0000000000000001 (1), #x0000000000000000 (0) >
+Source value: < #x0000000000000000 (0), #x0000000000000000 (0), #x0001000000000001 (281474976710657), #x0101000000000001 (72339069014638593) >
+Target value: < #x0000000000000000 (0), #x0000000000000001 (1), #x0000000000000001 (1), #x0000000000000000 (0) >
+
+
+----------------------------------------
+define <4 x i64> @_Z8functionDv4_x(<4 x i64> %0) noread nowrite nofree {
+%1:
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %3 = shufflevector <32 x i8> %2, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 4294967295, 3, 4294967295, 11, 4294967295, 15, 4294967295, 15, 16, 17, 18, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 27, 4294967295, 27, 28, 30, 31, 16
+  %4 = shufflevector <32 x i8> %3, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 5, 3, 11, 11, 9, 15, 13, 15, 16, 17, 18, 30, 29, 28, 31, 25, 16, 27, 17, 27, 28, 30, 31, 16
+  %5 = bitcast <32 x i8> %4 to <4 x i64>
+  ret <4 x i64> %5
+}
+=>
+define <4 x i64> @_Z8functionDv4_x.60(<4 x i64> %0) noread nowrite nofree {
+%1:
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %intr = x86.avx2.pshuf.b <32 x i8> %2, <32 x i8> %2
+  %3 = bitcast <32 x i8> %intr to <4 x i64>
+  ret <4 x i64> %3
+}
+Transformation doesn't verify!
+ERROR: Target is more poisonous than source
+
+Example:
+<4 x i64> %0 = < #x3f3f3b3f3f3f3f3f (4557426490752319295), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399) >
+
+Source:
+<32 x i8> %2 = < #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3b (59), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63) >
+<32 x i8> %3 = < #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3b (59), #x3f (63), #x3f (63), #x3f (63), any, #x3f (63), any, #x3f (63), any, #x3f (63), any, #x3f (63), #x3f (63), #x3f (63), #x3f (63), any, any, any, any, any, any, #x3f (63), any, #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63) >
+<32 x i8> %4 = < #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3b (59), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63) >
+<4 x i64> %5 = < #x3f3f3b3f3f3f3f3f (4557426490752319295), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399) >
+
+Target:
+<32 x i8> %2 = < #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3b (59), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63) >
+<32 x i8> %intr = < poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison >
+<4 x i64> %3 = < poison, poison, poison, poison >
+Source value: < #x3f3f3b3f3f3f3f3f (4557426490752319295), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399) >
+Target value: < poison, poison, poison, poison >
+
+
+----------------------------------------
+define <4 x i64> @_Z8functionDv4_x(<4 x i64> %0) noread nowrite nofree {
+%1:
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %3 = shufflevector <32 x i8> %2, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 4294967295, 3, 4294967295, 11, 4294967295, 15, 4294967295, 15, 16, 17, 18, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 27, 4294967295, 27, 28, 30, 31, 16
+  %4 = shufflevector <32 x i8> %3, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 5, 3, 11, 11, 9, 15, 13, 15, 16, 17, 18, 30, 29, 28, 31, 25, 16, 27, 17, 27, 28, 30, 31, 16
+  %5 = bitcast <32 x i8> %4 to <4 x i64>
+  ret <4 x i64> %5
+}
+=>
+define <4 x i64> @_Z8functionDv4_x.91(<4 x i64> %0) noread nowrite nofree {
+%1:
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %intr = x86.avx2.pshuf.b <32 x i8> %2, <32 x i8> %2
+  %3 = bitcast <32 x i8> %intr to <4 x i64>
+  ret <4 x i64> %3
+}
+Transformation doesn't verify!
+ERROR: Target is more poisonous than source
+
+Example:
+<4 x i64> %0 = < #x3f3f3b3f3f3f3f3f (4557426490752319295), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399) >
+
+Source:
+<32 x i8> %2 = < #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3b (59), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63) >
+<32 x i8> %3 = < #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3b (59), #x3f (63), #x3f (63), #x3f (63), any, #x3f (63), any, #x3f (63), any, #x3f (63), any, #x3f (63), #x3f (63), #x3f (63), #x3f (63), any, any, any, any, any, any, #x3f (63), any, #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63) >
+<32 x i8> %4 = < #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3b (59), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63) >
+<4 x i64> %5 = < #x3f3f3b3f3f3f3f3f (4557426490752319295), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399) >
+
+Target:
+<32 x i8> %2 = < #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3b (59), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63) >
+<32 x i8> %intr = < poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison >
+<4 x i64> %3 = < poison, poison, poison, poison >
+Source value: < #x3f3f3b3f3f3f3f3f (4557426490752319295), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399) >
+Target value: < poison, poison, poison, poison >
+
+
+----------------------------------------
+define <4 x i64> @_Z8functionDv4_x(<4 x i64> %0) noread nowrite nofree {
+%1:
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %3 = shufflevector <32 x i8> %2, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 4294967295, 3, 4294967295, 11, 4294967295, 15, 4294967295, 15, 16, 17, 18, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 27, 4294967295, 27, 28, 30, 31, 16
+  %4 = shufflevector <32 x i8> %3, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 5, 3, 11, 11, 9, 15, 13, 15, 16, 17, 18, 30, 29, 28, 31, 25, 16, 27, 17, 27, 28, 30, 31, 16
+  %5 = bitcast <32 x i8> %4 to <4 x i64>
+  ret <4 x i64> %5
+}
+=>
+define <4 x i64> @_Z8functionDv4_x.153(<4 x i64> %0) noread nowrite nofree {
+%1:
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %intr = x86.avx2.pshuf.b <32 x i8> %2, <32 x i8> %2
+  %3 = bitcast <32 x i8> %intr to <4 x i64>
+  ret <4 x i64> %3
+}
+Transformation doesn't verify!
+ERROR: Target is more poisonous than source
+
+Example:
+<4 x i64> %0 = < #x3f3f3b3f3f3f3f3f (4557426490752319295), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399) >
+
+Source:
+<32 x i8> %2 = < #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3b (59), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63) >
+<32 x i8> %3 = < #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3b (59), #x3f (63), #x3f (63), #x3f (63), any, #x3f (63), any, #x3f (63), any, #x3f (63), any, #x3f (63), #x3f (63), #x3f (63), #x3f (63), any, any, any, any, any, any, #x3f (63), any, #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63) >
+<32 x i8> %4 = < #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3b (59), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63) >
+<4 x i64> %5 = < #x3f3f3b3f3f3f3f3f (4557426490752319295), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399) >
+
+Target:
+<32 x i8> %2 = < #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3b (59), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63), #x3f (63) >
+<32 x i8> %intr = < poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison, poison >
+<4 x i64> %3 = < poison, poison, poison, poison >
+Source value: < #x3f3f3b3f3f3f3f3f (4557426490752319295), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399), #x3f3f3f3f3f3f3f3f (4557430888798830399) >
+Target value: < poison, poison, poison, poison >
+
+
+----------------------------------------
+define <4 x i64> @_Z8functionDv4_x.127.128(<4 x i64> %0, <32 x i8> %_reservedc_30) noread nowrite nofree {
+%1:
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %3 = shufflevector <32 x i8> %2, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 4294967295, 3, 4294967295, 11, 4294967295, 15, 4294967295, 15, 16, 17, 18, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 27, 4294967295, 27, 28, 30, 31, 16
+  %4 = shufflevector <32 x i8> %3, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 5, 3, 11, 11, 9, 15, 13, 15, 16, 17, 18, 30, 29, 28, 31, 25, 16, 27, 17, 27, 28, 30, 31, 16
+  %5 = bitcast <32 x i8> %4 to <4 x i64>
+  ret <4 x i64> %5
+}
+=>
+define <4 x i64> @_Z8functionDv4_x.127(<4 x i64> %0, <32 x i8> %_reservedc_30) noread nowrite nofree {
+%1:
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %intr = x86.avx2.pshuf.b <32 x i8> %_reservedc_30, <32 x i8> %2
+  %3 = bitcast <32 x i8> %intr to <4 x i64>
+  ret <4 x i64> %3
+}
+
+----------------------------------------
+define <4 x i64> @_Z8functionDv4_x(<4 x i64> %0) noread nowrite nofree {
+%1:
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %3 = shufflevector <32 x i8> %2, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 4294967295, 3, 4294967295, 11, 4294967295, 15, 4294967295, 15, 16, 17, 18, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 27, 4294967295, 27, 28, 30, 31, 16
+  %4 = shufflevector <32 x i8> %3, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 5, 3, 11, 11, 9, 15, 13, 15, 16, 17, 18, 30, 29, 28, 31, 25, 16, 27, 17, 27, 28, 30, 31, 16
+  %5 = bitcast <32 x i8> %4 to <4 x i64>
+  ret <4 x i64> %5
+}
+=>
+define <4 x i64> @_Z8functionDv4_x.223(<4 x i64> %0) noread nowrite nofree {
+%1:
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %3 = shufflevector <32 x i8> %2, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 4294967295, 3, 4294967295, 11, 4294967295, 15, 4294967295, 15, 16, 17, 18, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 27, 4294967295, 27, 28, 30, 31, 16
+  %4 = bitcast <32 x i8> %3 to <4 x i64>
+  ret <4 x i64> %4
+}
+Transformation doesn't verify!
+ERROR: Target's return value is more undefined
+
+Example:
+<4 x i64> %0 = < any, any, any, any >
+
+Source:
+<32 x i8> %2 = < any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any >
+<32 x i8> %3 = < any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any >
+<32 x i8> %4 = < any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any >
+<4 x i64> %5 = < any, #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0) >
+
+Target:
+<32 x i8> %2 = < #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0) >
+<32 x i8> %3 = < #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x03 (3), #x00 (0), #x03 (3), #x00 (0), #x03 (3), #x00 (0), #x03 (3), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x03 (3), #x03 (3), #x03 (3), #x03 (3), #x03 (3), #xfc (252, -4), #x00 (0), #x03 (3), #x00 (0), #x00 (0), #x00 (0), #x00 (0), #x00 (0) >
+<4 x i64> %4 = < #x0000000000000000 (0), #x0003000300030003 (844437815230467), #x0303030303000000 (217020518514032640), #x00000000000300fc (196860) >
+Source value: < #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0), #x0000000000000000 (0) >
+Target value: < #x0000000000000000 (0), #x0003000300030003 (844437815230467), #x0303030303000000 (217020518514032640), #x00000000000300fc (196860) >
+
+
+----------------------------------------
+define <4 x i64> @_Z8functionDv4_x.221.222(<4 x i64> %0, <32 x i8> %_reservedc_60) noread nowrite nofree {
+%1:
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %3 = shufflevector <32 x i8> %2, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 4294967295, 3, 4294967295, 11, 4294967295, 15, 4294967295, 15, 16, 17, 18, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 27, 4294967295, 27, 28, 30, 31, 16
+  %4 = shufflevector <32 x i8> %3, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 5, 3, 11, 11, 9, 15, 13, 15, 16, 17, 18, 30, 29, 28, 31, 25, 16, 27, 17, 27, 28, 30, 31, 16
+  %5 = bitcast <32 x i8> %4 to <4 x i64>
+  ret <4 x i64> %5
+}
+=>
+define <4 x i64> @_Z8functionDv4_x.221(<4 x i64> %0, <32 x i8> %_reservedc_60) noread nowrite nofree {
+%1:
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %intr = x86.avx2.pshuf.b <32 x i8> %_reservedc_60, <32 x i8> %2
+  %3 = bitcast <32 x i8> %intr to <4 x i64>
+  ret <4 x i64> %3
+}
+
+----------------------------------------
+define <4 x i64> @_Z8functionDv4_x.217.218(<4 x i64> %0, <32 x i8> %_reservedc_58) noread nowrite nofree {
+%1:
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %3 = shufflevector <32 x i8> %2, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 4294967295, 3, 4294967295, 11, 4294967295, 15, 4294967295, 15, 16, 17, 18, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 27, 4294967295, 27, 28, 30, 31, 16
+  %4 = shufflevector <32 x i8> %3, <32 x i8> undef, 1, 0, 3, 2, 5, 4, 7, 6, 5, 3, 11, 11, 9, 15, 13, 15, 16, 17, 18, 30, 29, 28, 31, 25, 16, 27, 17, 27, 28, 30, 31, 16
+  %5 = bitcast <32 x i8> %4 to <4 x i64>
+  ret <4 x i64> %5
+}
+=>
+define <4 x i64> @_Z8functionDv4_x.217(<4 x i64> %0, <32 x i8> %_reservedc_58) noread nowrite nofree {
+%1:
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %intr = x86.avx2.pshuf.b <32 x i8> %2, <32 x i8> %_reservedc_58
+  %3 = bitcast <32 x i8> %intr to <4 x i64>
+  ret <4 x i64> %3
+}
+;result
+<32 x i8> %_reservedc_58 = < #x00 (0), #x01 (1), #x02 (2), #x03 (3), #x04 (4), #x05 (5), #x06 (6), #x07 (7), #x04 (4), #x02 (2), #x0b (11), #x0b (11), #x03 (3), #x0f (15), #x0f (15), #x0f (15), #x10 (16), #x11 (17), #x12 (18), #x1f (31), #x1e (30), #x1c (28), #x10 (16), #x1b (27), #x10 (16), #x1b (27), #x11 (17), #x1b (27), #x1c (28), #x1f (31), #x10 (16), #x10 (16) >
+; ModuleID = 'function.ll'
+source_filename = "function.cpp"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-pc-linux-gnu"
+
+; Function Attrs: nounwind readnone uwtable
+define dso_local <4 x i64> @_Z8functionDv4_x(<4 x i64> %0) local_unnamed_addr #0 {
+  %2 = bitcast <4 x i64> %0 to <32 x i8>
+  %intr = call <32 x i8> @llvm.x86.avx2.pshuf.b(<32 x i8> %2, <32 x i8> <i8 0, i8 1, i8 2, i8 3, i8 4, i8 5, i8 6, i8 7, i8 4, i8 2, i8 11, i8 11, i8 3, i8 15, i8 15, i8 15, i8 16, i8 17, i8 18, i8 31, i8 30, i8 28, i8 16, i8 27, i8 16, i8 27, i8 17, i8 27, i8 28, i8 31, i8 16, i8 16>)
+  %3 = bitcast <32 x i8> %intr to <4 x i64>
+  ret <4 x i64> %3
+}
+
+; Function Attrs: nounwind readnone
+declare <32 x i8> @llvm.x86.avx2.pshuf.b(<32 x i8>, <32 x i8>) #1
+
+attributes #0 = { nounwind readnone uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "frame-pointer"="none" "less-precise-fpmad"="false" "min-legal-vector-width"="256" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+avx,+avx2,+cx8,+fxsr,+mmx,+popcnt,+sse,+sse2,+sse3,+sse4.1,+sse4.2,+ssse3,+x87,+xsave" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { nounwind readnone }
+
+!llvm.module.flags = !{!0}
+!llvm.ident = !{!1}
+
+!0 = !{i32 1, !"wchar_size", i32 4}
+!1 = !{!"clang version 10.0.0-4ubuntu1 "}
