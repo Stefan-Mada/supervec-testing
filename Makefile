@@ -1,6 +1,6 @@
 CC=clang++
 WARN=-Werror
-CFLAGS=-I -march=native -mavx2 -Ofast
+CFLAGS=-I -march=native -mavx2 -O3 -fno-strict-aliasing
 ISPCFLAGS=--target avx2-i32x8 -O3
 DEPS = function.hpp
 
@@ -17,7 +17,7 @@ main: main.o function.o functionispc.o
 %.out: %.cpp
 	$(CC) $(CLAFGS) $(WARN) $< -o $@
 
-.PHONY: IR %.ll BC %.bc supervec supervecispc
+.PHONY: IR %.ll BC %.bc supervec supervecispc alive-tv
 
 %.ll: %.ispc
 	ispc $(ISPCFLAGS) --emit-llvm-text $< -o $@
@@ -32,3 +32,6 @@ supervec: function.ll
 	
 supervecispc: functionispc.ll
 	$$HOME/llvm/build/bin/opt  -enable-new-pm=0 -load $$HOME/minotaur/build/minotaur.so -so -S functionispc.ll
+
+alive-tv: %.ll
+	$$HOME/alive2-x86/build/alive-tv $<
