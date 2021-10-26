@@ -1,6 +1,6 @@
 CC=clang++
 WARN=-Werror
-CFLAGS=-I -march=native -mavx2 -O3 -fno-strict-aliasing
+CFLAGS=-I -march=native -mavx2 -O0 -fno-strict-aliasing
 ISPCFLAGS=--target avx2-i32x8 -O3
 DEPS = function.hpp
 
@@ -25,7 +25,7 @@ main: main.o function.o functionispc.o
 %.ll: %.cpp
 	$(CC) $(CFLAGS) $(WARN) -S -emit-llvm $< -o $@
 
-IR: function.ll functionispc.ll
+IR: function.ll functionispc.ll main.ll
 
 supervec: function.ll
 	$$HOME/llvm/build/bin/opt  -enable-new-pm=0 -load $$HOME/minotaur/build/minotaur.so -so -S function.ll
