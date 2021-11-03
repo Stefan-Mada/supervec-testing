@@ -10,4 +10,4 @@ define <8 x i8> @tgt(<8 x i8> %a, <8 x i8> %b) {
   ret <8 x i8> %tmp
 }
 
-ERROR: Target is more poisonous than source
+; ERROR: Target is more poisonous than source
