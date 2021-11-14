@@ -1,0 +1,205 @@
+Source file:
+
+evaluate_nnue.ll
+in Stockfish/src
+
+Compiled using:
+clang++ -Wall -Wcast-qual -fno-exceptions -std=c++17  -pedantic -Wextra -Wshadow -m64 -DUSE_PTHREADS -DNDEBUG -O3 -DIS_64BIT -msse -msse3 -mpopcnt -DUSE_POPCNT -DUSE_AVX2 -mavx2 -DUSE_SSE41 -msse4.1 -DUSE_SSSE3 -mssse3 -DUSE_SSE2 -msse2 -flto   -c -S -emit-llvm -o evaluate_nnue.ll nnue/evaluate_nnue.cpp
+
+Called supervec using:
+$HOME/llvm/build/bin/opt  -enable-new-pm=0 -load $HOME/minotaur/build/minotaur.so -so -S evaluate_nnue.ll
+
+Sketches Output:
+---------Sketches------------
+(copy reservedconst)
+-----------------------------
+
+----------------------------------------
+define void @_ZNSt10unique_ptrIN9Stockfish4Eval4NNUE18FeatureTransformerENS2_16LargePageDeleterIS3_EEED2Ev.1.2(* nonnull dereferenceable(8) align(8) %this, i1 %_reservedc_0) {
+%entry:
+  %_M_head_impl.i.i.i.i.i = gep inbounds * nonnull dereferenceable(8) align(8) %this, 8 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0
+  %0 = load *, * %_M_head_impl.i.i.i.i.i, align 8
+  %cmp.not = icmp eq * %0, null
+  br i1 %cmp.not, label %if.end, label %if.then
+
+%if.then:
+  %1 = bitcast * %0 to *
+  call void @_ZN9Stockfish24aligned_large_pages_freeEPv(nonnull * %1)
+  br label %if.end
+
+%if.end:
+  store * null, * %_M_head_impl.i.i.i.i.i, align 8
+  ret void
+}
+=>
+define void @_ZNSt10unique_ptrIN9Stockfish4Eval4NNUE18FeatureTransformerENS2_16LargePageDeleterIS3_EEED2Ev.1(* nonnull dereferenceable(8) align(8) %this, i1 %_reservedc_0) {
+%entry:
+  %_M_head_impl.i.i.i.i.i = gep inbounds * nonnull dereferenceable(8) align(8) %this, 8 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0
+  %0 = load *, * %_M_head_impl.i.i.i.i.i, align 8
+  br i1 %_reservedc_0, label %if.end, label %if.then
+
+%if.then:
+  %1 = bitcast * %0 to *
+  call void @_ZN9Stockfish24aligned_large_pages_freeEPv(nonnull * %1)
+  br label %if.end
+
+%if.end:
+  store * null, * %_M_head_impl.i.i.i.i.i, align 8
+  ret void
+}
+constant synthesizer now only supports synthesizing integers and vector of integers
+---------Sketches------------
+(copy reservedconst)
+(load)
+-----------------------------
+
+----------------------------------------
+define void @_ZNSt10unique_ptrIN9Stockfish4Eval4NNUE18FeatureTransformerENS2_16LargePageDeleterIS3_EEED2Ev.3.4(* nonnull dereferenceable(8) align(8) %this, * %_reservedc_0) {
+%entry:
+  %_M_head_impl.i.i.i.i.i = gep inbounds * nonnull dereferenceable(8) align(8) %this, 8 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0
+  %0 = load *, * %_M_head_impl.i.i.i.i.i, align 8
+  %cmp.not = icmp eq * %0, null
+  br i1 %cmp.not, label %if.end, label %if.then
+
+%if.then:
+  %1 = bitcast * %0 to *
+  call void @_ZN9Stockfish24aligned_large_pages_freeEPv(nonnull * %1)
+  br label %if.end
+
+%if.end:
+  store * null, * %_M_head_impl.i.i.i.i.i, align 8
+  ret void
+}
+=>
+define void @_ZNSt10unique_ptrIN9Stockfish4Eval4NNUE18FeatureTransformerENS2_16LargePageDeleterIS3_EEED2Ev.3(* nonnull dereferenceable(8) align(8) %this, * %_reservedc_0) {
+%entry:
+  %_M_head_impl.i.i.i.i.i = gep inbounds * nonnull dereferenceable(8) align(8) %this, 8 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0
+  %cmp.not = icmp eq * %_reservedc_0, null
+  br i1 %cmp.not, label %if.end, label %if.then
+
+%if.then:
+  %0 = bitcast * %_reservedc_0 to *
+  call void @_ZN9Stockfish24aligned_large_pages_freeEPv(nonnull * %0)
+  br label %if.end
+
+%if.end:
+  store * null, * %_M_head_impl.i.i.i.i.i, align 8
+  ret void
+}
+constant synthesizer now only supports synthesizing integers and vector of integers
+---------Sketches------------
+(copy reservedconst)
+-----------------------------
+
+----------------------------------------
+define void @_ZNSt10unique_ptrIN9Stockfish4Eval4NNUE18FeatureTransformerENS2_16LargePageDeleterIS3_EEED2Ev.6.7(* nonnull dereferenceable(8) align(8) %this, * %_reservedc_0) {
+%entry:
+  %_M_head_impl.i.i.i.i.i = gep inbounds * nonnull dereferenceable(8) align(8) %this, 8 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0
+  %0 = load *, * %_M_head_impl.i.i.i.i.i, align 8
+  %cmp.not = icmp eq * %0, null
+  br i1 %cmp.not, label %if.end, label %if.then
+
+%if.then:
+  %1 = bitcast * %0 to *
+  call void @_ZN9Stockfish24aligned_large_pages_freeEPv(nonnull * %1)
+  br label %if.end
+
+%if.end:
+  store * null, * %_M_head_impl.i.i.i.i.i, align 8
+  ret void
+}
+=>
+define void @_ZNSt10unique_ptrIN9Stockfish4Eval4NNUE18FeatureTransformerENS2_16LargePageDeleterIS3_EEED2Ev.6(* nonnull dereferenceable(8) align(8) %this, * %_reservedc_0) {
+%entry:
+  %0 = load *, * %_reservedc_0, align 8
+  %cmp.not = icmp eq * %0, null
+  br i1 %cmp.not, label %if.end, label %if.then
+
+%if.then:
+  %1 = bitcast * %0 to *
+  call void @_ZN9Stockfish24aligned_large_pages_freeEPv(nonnull * %1)
+  br label %if.end
+
+%if.end:
+  store * null, * %_reservedc_0, align 8
+  ret void
+}
+constant synthesizer now only supports synthesizing integers and vector of integers
+---------Sketches------------
+(copy reservedconst)
+-----------------------------
+
+----------------------------------------
+define void @_ZNSt10unique_ptrIN9Stockfish4Eval4NNUE18FeatureTransformerENS2_16LargePageDeleterIS3_EEED2Ev.8.9(* nonnull dereferenceable(8) align(8) %this, * %_reservedc_0) {
+%entry:
+  %_M_head_impl.i.i.i.i.i = gep inbounds * nonnull dereferenceable(8) align(8) %this, 8 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0
+  %0 = load *, * %_M_head_impl.i.i.i.i.i, align 8
+  %cmp.not = icmp eq * %0, null
+  br i1 %cmp.not, label %if.end, label %if.then
+
+%if.then:
+  %1 = bitcast * %0 to *
+  call void @_ZN9Stockfish24aligned_large_pages_freeEPv(nonnull * %1)
+  br label %if.end
+
+%if.end:
+  store * null, * %_M_head_impl.i.i.i.i.i, align 8
+  ret void
+}
+=>
+define void @_ZNSt10unique_ptrIN9Stockfish4Eval4NNUE18FeatureTransformerENS2_16LargePageDeleterIS3_EEED2Ev.8(* nonnull dereferenceable(8) align(8) %this, * %_reservedc_0) {
+%entry:
+  %_M_head_impl.i.i.i.i.i = gep inbounds * nonnull dereferenceable(8) align(8) %this, 8 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0, 1 x i64 0
+  %0 = load *, * %_M_head_impl.i.i.i.i.i, align 8
+  %cmp.not = icmp eq * %0, null
+  br i1 %cmp.not, label %if.end, label %if.then
+
+%if.then:
+  call void @_ZN9Stockfish24aligned_large_pages_freeEPv(nonnull * %_reservedc_0)
+  br label %if.end
+
+%if.end:
+  store * null, * %_M_head_impl.i.i.i.i.i, align 8
+  ret void
+}
+constant synthesizer now only supports synthesizing integers and vector of integers
+---------Sketches------------
+(copy reservedconst)
+-----------------------------
+PLEASE submit a bug report to https://bugs.llvm.org/ and include the crash backtrace.
+Stack dump:
+0.	Program arguments: /home/stefan/llvm/build/bin/opt -enable-new-pm=0 -load /home/stefan/minotaur/build/minotaur.so -so -S evaluate_nnue.ll
+1.	Running pass 'Function Pass Manager' on module 'evaluate_nnue.ll'.
+2.	Running pass 'Superoptimizer' on function '@__cxx_global_array_dtor'
+ #0 0x00007fcdafbfc5e1 llvm::sys::PrintStackTrace(llvm::raw_ostream&, int) /home/stefan/llvm/llvm/lib/Support/Unix/Signals.inc:569:3
+ #1 0x00007fcdafbf9ed4 llvm::sys::RunSignalHandlers() /home/stefan/llvm/llvm/lib/Support/Signals.cpp:97:20
+ #2 0x00007fcdafbfad05 SignalHandler(int) /home/stefan/llvm/llvm/lib/Support/Unix/Signals.inc:397:31
+ #3 0x00007fcdaf651210 (/lib/x86_64-linux-gnu/libc.so.6+0x46210)
+ #4 0x00007fcdafe27028 llvm::DataLayout::getStructLayout(llvm::StructType*) const /home/stefan/llvm/llvm/lib/IR/DataLayout.cpp:677:8
+ #5 0x00007fcdafe26713 llvm::SmallVectorTemplateCommon<llvm::LayoutAlignElem, void>::operator[](unsigned long) const /home/stefan/llvm/llvm/include/llvm/ADT/SmallVector.h:281:5
+ #6 0x00007fcdafe26713 llvm::DataLayout::getAlignment(llvm::Type*, bool) const /home/stefan/llvm/llvm/lib/IR/DataLayout.cpp:765:57
+ #7 0x00007fcdafe27802 llvm::Align::value() const /home/stefan/llvm/llvm/include/llvm/Support/Alignment.h:85:50
+ #8 0x00007fcdafe27802 llvm::DataLayout::getABITypeAlignment(llvm::Type*) const /home/stefan/llvm/llvm/lib/IR/DataLayout.cpp:823:35
+ #9 0x00007fcdae4e4384 llvm::DataLayout::getTypeAllocSize(llvm::Type*) const (/home/stefan/minotaur/build/minotaur.so+0x13d384)
+#10 0x00007fcdae4e31eb llvm_util::get_operand(llvm::Value*, std::function<IR::Value* (llvm::ConstantExpr*)>, std::function<IR::Value* (IR::AggregateValue*)>) (/home/stefan/minotaur/build/minotaur.so+0x13c1eb)
+#11 0x00007fcdae4d4ef6 (anonymous namespace)::llvm2alive_::visitGetElementPtrInst(llvm::GetElementPtrInst&) llvm2alive.cpp:0:0
+#12 0x00007fcdae4d6c28 llvm::InstVisitor<(anonymous namespace)::llvm2alive_, std::unique_ptr<IR::Instr, std::default_delete<IR::Instr> > >::visit(llvm::Instruction&) llvm2alive.cpp:0:0
+#13 0x00007fcdae4d798e std::_Function_handler<IR::Value* (llvm::ConstantExpr*), (anonymous namespace)::llvm2alive_::get_operand(llvm::Value*)::'lambda'(auto)>::_M_invoke(std::_Any_data const&, llvm::ConstantExpr*&&) llvm2alive.cpp:0:0
+#14 0x00007fcdae4e3a0e llvm_util::get_operand(llvm::Value*, std::function<IR::Value* (llvm::ConstantExpr*)>, std::function<IR::Value* (IR::AggregateValue*)>) (/home/stefan/minotaur/build/minotaur.so+0x13ca0e)
+#15 0x00007fcdae4cc9a9 (anonymous namespace)::llvm2alive_::get_operand(llvm::Value*) llvm2alive.cpp:0:0
+#16 0x00007fcdae4d6a75 llvm::InstVisitor<(anonymous namespace)::llvm2alive_, std::unique_ptr<IR::Instr, std::default_delete<IR::Instr> > >::visit(llvm::Instruction&) llvm2alive.cpp:0:0
+#17 0x00007fcdae4daee0 (anonymous namespace)::llvm2alive_::run() llvm2alive.cpp:0:0
+#18 0x00007fcdae4dc18e llvm_util::llvm2alive(llvm::Function&, llvm::TargetLibraryInfo const&, std::vector<std::basic_string_view<char, std::char_traits<char> >, std::allocator<std::basic_string_view<char, std::char_traits<char> > > > const&) (/home/stefan/minotaur/build/minotaur.so+0x13518e)
+#19 0x00007fcdae41dea4 std::_Vector_base<std::basic_string_view<char, std::char_traits<char> >, std::allocator<std::basic_string_view<char, std::char_traits<char> > > >::~_Vector_base() /usr/include/c++/10/bits/stl_vector.h:336:45
+#20 0x00007fcdae41dea4 std::vector<std::basic_string_view<char, std::char_traits<char> >, std::allocator<std::basic_string_view<char, std::char_traits<char> > > >::~vector() /usr/include/c++/10/bits/stl_vector.h:683:7
+#21 0x00007fcdae41dea4 minotaur::synthesize(llvm::Function&, llvm::TargetLibraryInfo*) /usr/include/c++/10/bits/stl_vector.h:678:7
+#22 0x00007fcdafefa3f5 llvm::FPPassManager::runOnFunction(llvm::Function&) /home/stefan/llvm/llvm/lib/IR/LegacyPassManager.cpp:1449:7
+#23 0x00007fcdafefa639 llvm::ilist_node_impl<llvm::ilist_detail::node_options<llvm::Function, true, false, void> >::getNext() /home/stefan/llvm/llvm/include/llvm/ADT/ilist_node.h:66:66
+#24 0x00007fcdafefa639 llvm::ilist_iterator<llvm::ilist_detail::node_options<llvm::Function, true, false, void>, false, false>::operator++() /home/stefan/llvm/llvm/include/llvm/ADT/ilist_iterator.h:157:25
+#25 0x00007fcdafefa639 llvm::FPPassManager::runOnModule(llvm::Module&) /home/stefan/llvm/llvm/lib/IR/LegacyPassManager.cpp:1484:22
+#26 0x00007fcdafefb8c1 runOnModule /home/stefan/llvm/llvm/lib/IR/LegacyPassManager.cpp:1561:7
+#27 0x00007fcdafefb8c1 llvm::legacy::PassManagerImpl::run(llvm::Module&) /home/stefan/llvm/llvm/lib/IR/LegacyPassManager.cpp:542:55
+#28 0x0000564df718c4dc main /home/stefan/llvm/llvm/tools/opt/opt.cpp:1076:20
+#29 0x00007fcdaf6320b3 __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:342:3
+#30 0x0000564df718d3be _start (/home/stefan/llvm/build/bin/opt+0x293be)
+Segmentation fault (core dumped)
