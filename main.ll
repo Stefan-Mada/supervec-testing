@@ -46,18 +46,22 @@ declare dso_local void @_ZNSt8ios_base4InitD1Ev(%"class.std::ios_base::Init"* no
 declare dso_local i32 @__cxa_atexit(void (i8*)*, i8*, i8*) #3
 
 ; Function Attrs: mustprogress noinline nounwind optnone uwtable
-define dso_local i32 @_Z5func1i(i32 %a) #4 {
+define dso_local i32 @_Z5func1i(i32 %input) #4 {
 entry:
-  %t0 = bitcast i32 %a to i32
-  ret i32 %t0
+  %input.addr = alloca i32, align 4
+  store i32 %input, i32* %input.addr, align 4
+  %0 = load i32, i32* %input.addr, align 4
+  ret i32 %0
 }
 
 ; Function Attrs: mustprogress noinline nounwind optnone uwtable
-define dso_local i32 @_Z5func2i(i32 %a) #4 {
+define dso_local i32 @_Z5func2i(i32 %input) #4 {
 entry:
-  %t0 = bitcast i32 %a to float
-  %t1 = bitcast float %t0 to i32
-  ret i32 %t1
+  %input.addr = alloca i32, align 4
+  store i32 %input, i32* %input.addr, align 4
+  %0 = load i32, i32* %input.addr, align 4
+  %mul = mul nsw i32 %0, 2
+  ret i32 %mul
 }
 
 ; Function Attrs: mustprogress noinline norecurse optnone uwtable
@@ -134,6 +138,6 @@ attributes #5 = { mustprogress noinline norecurse optnone uwtable "frame-pointer
 !0 = !{i32 1, !"wchar_size", i32 4}
 !1 = !{i32 7, !"uwtable", i32 1}
 !2 = !{i32 7, !"frame-pointer", i32 2}
-!3 = !{!"clang version 14.0.0 (git@github.com:llvm/llvm-project 47d66355ef9039a15b7265945e3deb331d7f9e05)"}
+!3 = !{!"clang version 14.0.0 (git@github.com:llvm/llvm-project d1fdd745d510f40d8741d44ce39f5ae24ee7f91a)"}
 !4 = distinct !{!4, !5}
 !5 = !{!"llvm.loop.mustprogress"}
