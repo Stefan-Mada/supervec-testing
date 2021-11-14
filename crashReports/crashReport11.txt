@@ -1,0 +1,54 @@
+Source file:
+
+post_proc_sse2.c.ll
+in libvpx/vpx_dsp/x86/
+
+Compiled using:
+clang  -m64 -DNDEBUG -O3 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -Wall -Wdeclaration-after-statement -Wdisabled-optimization -Wfloat-conversion -Wpointer-arith -Wtype-limits -Wcast-qual -Wvla -Wimplicit-function-declaration -Wmissing-declarations -Wmissing-prototypes -Wuninitialized -Wunused -Wextra -Wundef -Wframe-larger-than=52000 -std=gnu89 -I. -I"/home/stefan/libvpx" -msse2 -c -S -o vpx_dsp/x86/post_proc_sse2.c.ll vpx_dsp/x86/post_proc_sse2.c -emit-llvm
+
+Called supervec using:
+$HOME/llvm/build/bin/opt -enable-new-pm=0 -load $HOME/minotaur/build/minotaur.so -so -S post_proc_sse2.c.ll
+
+
+Sketches Output:
+---------Sketches------------
+(copy reservedconst)
+-----------------------------
+PLEASE submit a bug report to https://bugs.llvm.org/ and include the crash backtrace.
+Stack dump:
+0.	Program arguments: /home/stefan/llvm/build/bin/opt -enable-new-pm=0 -load /home/stefan/minotaur/build/minotaur.so -so -S post_proc_sse2.c.ll
+1.	Running pass 'Function Pass Manager' on module 'post_proc_sse2.c.ll'.
+2.	Running pass 'Superoptimizer' on function '@vpx_mbpost_proc_down_sse2'
+ #0 0x00007f3c642505e1 llvm::sys::PrintStackTrace(llvm::raw_ostream&, int) /home/stefan/llvm/llvm/lib/Support/Unix/Signals.inc:569:3
+ #1 0x00007f3c6424ded4 llvm::sys::RunSignalHandlers() /home/stefan/llvm/llvm/lib/Support/Signals.cpp:97:20
+ #2 0x00007f3c6424ed05 SignalHandler(int) /home/stefan/llvm/llvm/lib/Support/Unix/Signals.inc:397:31
+ #3 0x00007f3c63ca5210 (/lib/x86_64-linux-gnu/libc.so.6+0x46210)
+ #4 0x00007f3c64479d35 llvm::SmallVectorTemplateCommon<llvm::LayoutAlignElem, void>::end() /home/stefan/llvm/llvm/include/llvm/ADT/SmallVector.h:255:35
+ #5 0x00007f3c64479d35 decltype(fp.end()) std::end<llvm::SmallVector<llvm::LayoutAlignElem, 16u> >(llvm::SmallVector<llvm::LayoutAlignElem, 16u>&) /usr/include/c++/9/bits/range_access.h:69:25
+ #6 0x00007f3c64479d35 decltype(auto) llvm::adl_detail::adl_end<llvm::SmallVector<llvm::LayoutAlignElem, 16u>&>(llvm::SmallVector<llvm::LayoutAlignElem, 16u>&) /home/stefan/llvm/llvm/include/llvm/ADT/STLExtras.h:223:13
+ #7 0x00007f3c64479d35 decltype(auto) llvm::adl_end<llvm::SmallVector<llvm::LayoutAlignElem, 16u>&>(llvm::SmallVector<llvm::LayoutAlignElem, 16u>&) /home/stefan/llvm/llvm/include/llvm/ADT/STLExtras.h:243:29
+ #8 0x00007f3c64479d35 partition_point<llvm::SmallVector<llvm::LayoutAlignElem, 16>&, llvm::DataLayout::findAlignmentLowerBound(llvm::AlignTypeEnum, uint32_t)::<lambda(const llvm::LayoutAlignElem&)> > /home/stefan/llvm/llvm/include/llvm/ADT/STLExtras.h:1700:30
+ #9 0x00007f3c64479d35 llvm::DataLayout::findAlignmentLowerBound(llvm::AlignTypeEnum, unsigned int) /home/stefan/llvm/llvm/lib/IR/DataLayout.cpp:559:25
+#10 0x00007f3c64479d35 llvm::DataLayout::findAlignmentLowerBound(llvm::AlignTypeEnum, unsigned int) const /home/stefan/llvm/llvm/include/llvm/IR/DataLayout.h:154:67
+#11 0x00007f3c64479d35 llvm::DataLayout::getIntegerAlignment(unsigned int, bool) const /home/stefan/llvm/llvm/lib/IR/DataLayout.cpp:631:35
+#12 0x00007f3c6447b802 llvm::Align::value() const /home/stefan/llvm/llvm/include/llvm/Support/Alignment.h:85:50
+#13 0x00007f3c6447b802 llvm::DataLayout::getABITypeAlignment(llvm::Type*) const /home/stefan/llvm/llvm/lib/IR/DataLayout.cpp:823:35
+#14 0x00007f3c62b38384 llvm::DataLayout::getTypeAllocSize(llvm::Type*) const (/home/stefan/minotaur/build/minotaur.so+0x13d384)
+#15 0x00007f3c62b371eb llvm_util::get_operand(llvm::Value*, std::function<IR::Value* (llvm::ConstantExpr*)>, std::function<IR::Value* (IR::AggregateValue*)>) (/home/stefan/minotaur/build/minotaur.so+0x13c1eb)
+#16 0x00007f3c62b28ef6 (anonymous namespace)::llvm2alive_::visitGetElementPtrInst(llvm::GetElementPtrInst&) llvm2alive.cpp:0:0
+#17 0x00007f3c62b2ac28 llvm::InstVisitor<(anonymous namespace)::llvm2alive_, std::unique_ptr<IR::Instr, std::default_delete<IR::Instr> > >::visit(llvm::Instruction&) llvm2alive.cpp:0:0
+#18 0x00007f3c62b2eee0 (anonymous namespace)::llvm2alive_::run() llvm2alive.cpp:0:0
+#19 0x00007f3c62b3018e llvm_util::llvm2alive(llvm::Function&, llvm::TargetLibraryInfo const&, std::vector<std::basic_string_view<char, std::char_traits<char> >, std::allocator<std::basic_string_view<char, std::char_traits<char> > > > const&) (/home/stefan/minotaur/build/minotaur.so+0x13518e)
+#20 0x00007f3c62a71ea4 std::_Vector_base<std::basic_string_view<char, std::char_traits<char> >, std::allocator<std::basic_string_view<char, std::char_traits<char> > > >::~_Vector_base() /usr/include/c++/10/bits/stl_vector.h:336:45
+#21 0x00007f3c62a71ea4 std::vector<std::basic_string_view<char, std::char_traits<char> >, std::allocator<std::basic_string_view<char, std::char_traits<char> > > >::~vector() /usr/include/c++/10/bits/stl_vector.h:683:7
+#22 0x00007f3c62a71ea4 minotaur::synthesize(llvm::Function&, llvm::TargetLibraryInfo*) /usr/include/c++/10/bits/stl_vector.h:678:7
+#23 0x00007f3c6454e3f5 llvm::FPPassManager::runOnFunction(llvm::Function&) /home/stefan/llvm/llvm/lib/IR/LegacyPassManager.cpp:1449:7
+#24 0x00007f3c6454e639 llvm::ilist_node_impl<llvm::ilist_detail::node_options<llvm::Function, true, false, void> >::getNext() /home/stefan/llvm/llvm/include/llvm/ADT/ilist_node.h:66:66
+#25 0x00007f3c6454e639 llvm::ilist_iterator<llvm::ilist_detail::node_options<llvm::Function, true, false, void>, false, false>::operator++() /home/stefan/llvm/llvm/include/llvm/ADT/ilist_iterator.h:157:25
+#26 0x00007f3c6454e639 llvm::FPPassManager::runOnModule(llvm::Module&) /home/stefan/llvm/llvm/lib/IR/LegacyPassManager.cpp:1484:22
+#27 0x00007f3c6454f8c1 runOnModule /home/stefan/llvm/llvm/lib/IR/LegacyPassManager.cpp:1561:7
+#28 0x00007f3c6454f8c1 llvm::legacy::PassManagerImpl::run(llvm::Module&) /home/stefan/llvm/llvm/lib/IR/LegacyPassManager.cpp:542:55
+#29 0x000055ea654114dc main /home/stefan/llvm/llvm/tools/opt/opt.cpp:1076:20
+#30 0x00007f3c63c860b3 __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:342:3
+#31 0x000055ea654123be _start (/home/stefan/llvm/build/bin/opt+0x293be)
+Segmentation fault (core dumped)
