@@ -9,7 +9,6 @@ clang++ -Wall -Wcast-qual -fno-exceptions -std=c++17  -pedantic -Wextra -Wshadow
 Called supervec using:
 $HOME/llvm/build/bin/opt  -enable-new-pm=0 -load $HOME/minotaur/build/minotaur.so -so -S evaluate_nnue.ll
 
-Sketches Output:
 ---------Sketches------------
 (copy reservedconst)
 -----------------------------
