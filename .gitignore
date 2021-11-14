@@ -1,3 +1,4 @@
-*.ll
+functionispc.ll
+function.ll
 *.o
 *.out
